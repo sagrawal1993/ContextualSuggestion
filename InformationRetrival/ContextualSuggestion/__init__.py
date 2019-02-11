@@ -4,7 +4,8 @@ This module will contains method to recomment
 
 from TextAnalysislib.InformationRetrival import AbstractIR
 from TextAnalysislib.TextEmbedding import embedding
-from analysislib.clustering import ClusterEmbedding
+from analysislib import clustering
+from sklearn.metrics.pairwise import cosine_similarity
 
 class AbstractDataSource:
     def getArticles(self, param_map):
@@ -82,9 +83,9 @@ class WordEmbeddingBased(AbstractIR):
         self.rating_shift = rating_shift
         self.profile_type = profile_type
         if profile_vector == "weighted":
-            self.doc_combiner = ClusterEmbedding.getClusterEmbeddingFromPoints("weightedCentroid")
+            self.doc_combiner = clustering.getClusterEmbeddingFromPoints("weightedCentroid")
         else:
-            self.doc_combiner = ClusterEmbedding.getClusterEmbeddingFromPoints("centroid")
+            self.doc_combiner = clustering.getClusterEmbeddingFromPoints("centroid")
         print("This is instance for getting articles recommendation based on word embedding")
 
     def __getProfile(self, preferences):
@@ -126,9 +127,31 @@ class WordEmbeddingBased(AbstractIR):
 
 
     def fit(self, query_set, ground_truth):
+        for query in query_set:
+            print("xyz")
         return
 
+    def rank_articles(self, profile_vec, candidate_articles):
+        return
+
+    def rocchio_ranker(self, user_profile, params, candidate_suggestion):
+        profile_vec = params[0] * user_profile[0] + params[1] * user_profile[1] + params[2] * user_profile[2]
+        doc_id_score_map = {}
+        for doc in candidate_suggestion:
+            doc_vec = self.poi.get_vec_tags(doc['tags'])
+            doc_id_score_map[doc['documentId']] = cosine_similarity([profile_vec], [doc_vec])[0][0]
+        return doc_id_score_map
+
+    def similarity_ranker(self, user_profile, pos_par, neg_par, candidate_suggestion):
+        doc_id_score_map = {}
+        for doc in candidate_suggestion:
+            doc_vec = self.poi.get_vec_tags(doc['tags'])
+            temp = cosine_similarity([doc_vec], user_profile)
+            doc_id_score_map[doc['documentId']] = cosine_similarity(temp, [[pos_par, 1, neg_par]])[0][0]
+        return doc_id_score_map
+
     def __getArticles(self, paramters, query_dict):
+
         return []
 
     def getArticles(self, query_dict):
