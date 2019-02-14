@@ -237,7 +237,7 @@ class WordEmbeddingBased(AbstractIR):
                 full_map = self.opt.traverse_search_space(self.score_file_generator, arg_map)
                 if store_opt:
                     self.datasource.storeOptimizationInfo(user_id, full_map)
-            elif user_id != 'all':
+            elif param_type!= 'all':
                 full_map = self.datasource.getOptimizationInfo(str(user_id))
 
             final_param_map[str(user_id)] = {}
