@@ -196,18 +196,18 @@ Generate output file with the given parameters to get the score.
 """
 def process():
     grid_opt_param = {}
-    grid_opt_param["param_min"] = [-2.0, -2.0]
+    grid_opt_param["param_min"] = [-4.0, -4.0]
     grid_opt_param["param_max"] = [8.0, 8.0]
-    grid_opt_param["step_size"] = 0.3
+    grid_opt_param["step_size"] = 0.2
     datasource = TRECDataSource("../../data/Phase2_requests.json",
-                                "/Users/surajagrawal/suraj/MyProjects/informatinoretrival/data/2016EmbWeigtedRocchioMultiLevel")
+                                "/Users/surajagrawal/suraj/MyProjects/informatinoretrival/data/2016EmbWeitedRocchioMultiLevelSumTag")
     embedding = create_word_embedding(model_file="../../data/embdding/embedding_2016.bin")
     poi_ranker = WordEmbeddingBased(datasource, embedding, profile_vector="weighted", profile_type="individual",
                                     ranking="rocchio", rating_shift=0, opt_name="grid_search",
                                     opt_param=grid_opt_param)
-    poi_ranker.fit(user_ids=datasource.user_info.keys(), param_type="all", score_file="given", store_profile=True)
+    poi_ranker.fit(user_ids=datasource.qrel_qid, param_type="all", score_file=None, store_profile=True)
     user_recommendation = []
-    for user_id in datasource.user_info.keys():
+    for user_id in datasource.qrel_qid:
         output = poi_ranker.getArticles(user_id)
         user_recommendation.append(output)
     TREC.create_output_file(user_recommendation, list(datasource.user_info.keys()), "result.txt")
