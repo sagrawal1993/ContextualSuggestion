@@ -66,10 +66,26 @@ class AbstractDataSource:
         """
         pass
 
-    def getScoreGridMap(self, user_id):
+    def getOptimizationInfo(self, user_id):
+        """
+        This will get the info required for search optimization problems.
+        :param user_id:
+        :type user_id:
+        :return:
+        :rtype:
+        """
         pass
 
-    def storeScoreGripMap(self, user_id, param_map):
+    def storeOptimizationInfo(self, user_id, param_map):
+        """
+        This will store the optimization related info to storage.
+        :param user_id:
+        :type user_id:
+        :param param_map:
+        :type param_map:
+        :return:
+        :rtype:
+        """
         pass
 
 class WordEmbeddingBased(AbstractIR):
@@ -97,19 +113,19 @@ class WordEmbeddingBased(AbstractIR):
 
     This code expect preferences to have tags.
     """
-    def __init__(self, datasource, tag_embedding, profile_vector="unweighted", profile_type="individual", ranking="rocchio", rating_shift=0, opt_name=None, opt_param=None, step=0.2):
-        super.__init__(datasource)
+    def __init__(self, datasource, tag_embedding, profile_vector="unweighted", profile_type="individual", ranking="rocchio", rating_shift=2, opt_name=None, opt_param=None, qrel_level="multi"):
+        super().__init__(datasource)
         self.tag_embedding = tag_embedding
         self.profile_vector = profile_vector
         self.rating_shift = rating_shift
         self.profile_type = profile_type
         self.ranking = ranking
         self.opt = optimization.getSearchOptimizer(opt_name, opt_param)
-        self.step = step
+        self.qrel_level = qrel_level
         if profile_vector == "weighted":
-            self.doc_combiner = clustering.getClusterEmbeddingFromPoints("weightedCentroid")
+            self.doc_combiner = clustering.getClusterEmbeddingFromPoints("weightedCentroid", {"dim": self.tag_embedding.size})
         else:
-            self.doc_combiner = clustering.getClusterEmbeddingFromPoints("centroid")
+            self.doc_combiner = clustering.getClusterEmbeddingFromPoints("centroid", {"dim": self.tag_embedding.size})
         print("This is instance for getting articles recommendation based on word embedding")
 
     def __getProfile(self, preferences):
@@ -121,17 +137,18 @@ class WordEmbeddingBased(AbstractIR):
         neu_doc_embedding_list = []
 
         for doc in preferences:
-            if 'rating' in doc and 'tags' in doc:
-                rating = doc['rating'] - self.rating_shift
+            if 'rating' in doc and 'tags' in doc and len(doc['tags']) > 0 and doc['rating'] != -1:
+                rating = doc['rating']
                 doc_embedding = self.tag_embedding.get_doc_embedding(doc['tags'])
-                if rating > 0:
-                    pos_rating_list.append(rating)
+                #print(doc_embedding, rating, doc)
+                if rating > 2:
+                    pos_rating_list.append(rating - 1)
                     pos_doc_embedding_list.append(doc_embedding)
-                elif rating == 0:
-                    neu_rating_list.append(rating)
+                elif rating == 2:
+                    neu_rating_list.append(1)
                     neu_doc_embedding_list.append(doc_embedding)
                 else:
-                    neg_rating_list.append(rating)
+                    neg_rating_list.append(rating - 3)
                     neg_doc_embedding_list.append(doc_embedding)
 
         parm_map = {}
@@ -147,9 +164,10 @@ class WordEmbeddingBased(AbstractIR):
         neu_profile_vec = self.doc_combiner.getClusterRepresentation(neu_doc_embedding_list, parm_map)
         parm_map["weights"] = neg_rating_list
         neg_profile_vec = self.doc_combiner.getClusterRepresentation(neg_doc_embedding_list, parm_map)
+        #print(pos_profile_vec, neu_profile_vec, neg_profile_vec)
         return pos_profile_vec, neu_profile_vec, neg_profile_vec
 
-    def fit(self, user_ids, fit_type="search", score_file=None, param_type="all", store_profile=False, measure="ndcg_at_5"):
+    def fit(self, user_ids, fit_type="search", score_file=None, param_type="all", store_profile=False, measure="ndcg_cut_5"):
         if fit_type == "search":
             self.__search_fit(user_ids, score_file, param_type, store_profile, measure)
         else:
@@ -194,7 +212,7 @@ class WordEmbeddingBased(AbstractIR):
                 rating.append(0)
         return vec_list, rating
 
-    def __search_fit(self, user_ids, score_file=None, param_type="all", store_profile=False, measure="ndcg_at_5"):
+    def __search_fit(self, user_ids, score_file=None, param_type="all", store_profile=False, measure="ndcg_cut_5", store_opt=True):
         """
         This function will create the user profiles for the user's id given, and will store according to the given function.
         :param user_ids:
@@ -206,35 +224,44 @@ class WordEmbeddingBased(AbstractIR):
         :return:
         :rtype:
         """
-        user_profile = {}
+        print("start search fitting")
         final_param_map = {}
         for user_id in user_ids:
             preferences = self.datasource.getUserPreferences(user_id)
             profile_vector = self.__getProfile(preferences)
-            user_profile[user_id] = (profile_vector, preferences)
             if score_file is None:
                 arg_map = {}
-                arg_map['profile'] = user_profile
+                arg_map['profile'] = profile_vector
                 arg_map['candidate'] = preferences
                 arg_map['user_id'] = user_id
-                self.opt.traverse_search_space(self.score_file_generator, user_profile)
+                full_map = self.opt.traverse_search_space(self.score_file_generator, arg_map)
+                if store_opt:
+                    self.datasource.storeOptimizationInfo(user_id, full_map)
+            elif user_id != 'all':
+                full_map = self.datasource.getOptimizationInfo(str(user_id))
+
             final_param_map[str(user_id)] = {}
             final_param_map[str(user_id)]['user_prof'] = profile_vector
             final_param_map[str(user_id)]['preference'] = preferences
             if param_type != 'all':
                 args = {}
                 args['measure'] = measure
-                args['qid'] = str(user_id)
-                args['score_map'] = self.datasource.getGridScoreMap(str(user_id))
-                final_param_map[str(user_id)]["final_info"] = self.opt.maximize(self.score_selector, args)
+                args['user_id'] = str(user_id)
+                args['profile'] = profile_vector
+                args['candidate'] = preferences
+                args['score_map'] = full_map
+                final_param_map[str(user_id)]["final_param"] = self.opt.maximize(self.score_selector, args)
+            print("done with " + str(user_id))
 
         if param_type == 'all':
+            full_map = self.datasource.getOptimizationInfo('all')
+            args = {}
+            args['qid'] = 'all'
+            args['measure'] = measure
+            args['score_map'] = full_map
+            params = self.opt.maximize(self.score_selector, args)
             for user_id in user_ids:
-                args = {}
-                args['qid'] = 'all'
-                args['measure'] = measure
-                args['score_map'] = self.datasource.getGridScoreMap('all')
-                final_param_map[str(user_id)] = self.opt.maximize(self.score_selector, args)
+                final_param_map[str(user_id)]['final_param'] = params
 
         if store_profile:
             for user_id in user_ids:
@@ -246,6 +273,8 @@ class WordEmbeddingBased(AbstractIR):
         score_map = args["score_map"]
         measure = args["measure"]
         qid = args["qid"]
+        if score_map is None:
+            score_map = self.score_file_generator(param, args)
         measure_score = score_map[str(param[0])][str(param[1])][qid]
         return measure_score[measure]
 
@@ -261,13 +290,14 @@ class WordEmbeddingBased(AbstractIR):
             cand_score = self.similarityRanker(user_prof, [param[0], 1, param[1]], candidate)
         ranked_poi.append(cand_score)
         pref_list.append(candidate)
-        TREC.create_qrel_from_preferences(pref_list, [user_id], "qrel.txt", level="multi")
+        #print(ranked_poi)
+        TREC.create_qrel_from_preferences(pref_list, [user_id], "qrel.txt", level=self.qrel_level)
         TREC.create_output_file(ranked_poi, [user_id], "temp.txt")
         param_score = TREC.get_score("qrel.txt", "temp.txt")
-        self.datasource.storeScoreGripMap(user_id, param_score)
-        return
+        return param_score
 
     def rocchioRanker(self, user_profile, params, candidate_suggestion):
+        print("started rocchio ranker")
         profile_vec = params[0] * user_profile[0] + params[1] * user_profile[1] + params[2] * user_profile[2]
         doc_id_score_map = {}
         for doc in candidate_suggestion:
@@ -276,6 +306,7 @@ class WordEmbeddingBased(AbstractIR):
         return doc_id_score_map
 
     def similarityRanker(self, user_profile, params, candidate_suggestion):
+        print("start similarity based ranker")
         doc_id_score_map = {}
         for doc in candidate_suggestion:
             doc_vec = self.tag_embedding.get_vec_tags(doc['tags'])
@@ -303,7 +334,7 @@ class WordEmbeddingBased(AbstractIR):
             doc_id_score_map[doc['documentId']] = score_list[i]
         return doc_id_score_map
 
-    def getArticles(self, user_id):
+    def getArticles(self, user_id, params=None):
         candiate_articles = self.datasource.getCandidateArticles(user_id)
         detailed_candidate_article = []
         for article_id in candiate_articles:
@@ -311,16 +342,19 @@ class WordEmbeddingBased(AbstractIR):
             entry_map['documentId'] = article_id
             entry_map['tags'] = self.datasource.getArticleTags(user_id, article_id)
             detailed_candidate_article.append(entry_map)
-        full_info = self.full_info_map[user_id]
-        user_prof, preference_info = full_info['user_profile']
+        if params is not None:
+            a, b, value = params[0], params[1], -1
+            user_prof = self.__getProfile(self.datasource.getUserPreferences(user_id))
+        else:
+            full_info = self.full_info_map[user_id]
+            a, b, value = full_info['final_param']
+            user_prof = full_info['user_prof']
 
         if self.ranking == "rocchio":
-            a, b, value = full_info['final_param']
             cand_score = self.rocchioRanker(user_prof, [a, 1, b], detailed_candidate_article)
         elif self.ranking == "similarity":
-            a, b, value = full_info['final_param']
             cand_score = self.similarityRanker(user_prof, [a, 1, b], detailed_candidate_article)
-        else:
+        elif params is None:
             learner = full_info['learner']
             cand_score = self.learnedRank(user_prof, learner, detailed_candidate_article)
         return cand_score
