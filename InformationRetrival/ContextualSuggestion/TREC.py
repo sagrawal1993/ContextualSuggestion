@@ -151,7 +151,7 @@ def qrelQid():
     for line in lines:
         qid = line.split("\t")[0]
         qid_list.append(qid)
-    return qid_list
+    return list(set(qid_list))
 
 
 def getTagData(consider_tag=["2015", "2016_phase1", "2016_phase2"]):
