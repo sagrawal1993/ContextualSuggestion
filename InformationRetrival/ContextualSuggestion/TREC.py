@@ -58,6 +58,8 @@ class TRECDataSource:
         :return: the list of json contains documentId, rating and tags.
         :rtype: list of dict.
         """
+        if user_id not in self.user_info:
+            return None
         return self.user_info[user_id]["preferences"]
 
     def getArticleTags(self, user_id, article_id):
@@ -150,7 +152,9 @@ def qrelQid():
     lines = open("/Users/surajagrawal/suraj/MyProjects/informatinoretrival/data/qrels_TREC2016_CS.txt").read().strip().split("\n")
     for line in lines:
         qid = line.split("\t")[0]
-        qid_list.append(qid)
+        if "opt_" + qid + ".json" not in os.listdir("/Users/surajagrawal/suraj/MyProjects/informatinoretrival/data/2016EmbWeightedRocchioMultiLevelSumTag"):
+            qid_list.append(qid)
+
     return list(set(qid_list))
 
 
@@ -200,7 +204,7 @@ def process():
     grid_opt_param["param_max"] = [8.0, 8.0]
     grid_opt_param["step_size"] = 0.2
     datasource = TRECDataSource("../../data/Phase2_requests.json",
-                                "/Users/surajagrawal/suraj/MyProjects/informatinoretrival/data/2016EmbWeitedRocchioMultiLevelSumTag")
+                                "/Users/surajagrawal/suraj/MyProjects/informatinoretrival/data/2016EmbWeightedRocchioMultiLevelSumTag")
     embedding = create_word_embedding(model_file="../../data/embdding/embedding_2016.bin")
     poi_ranker = WordEmbeddingBased(datasource, embedding, profile_vector="weighted", profile_type="individual",
                                     ranking="rocchio", rating_shift=0, opt_name="grid_search",
@@ -219,4 +223,4 @@ def process():
 #print(len(tag_list))
 
 process()
-#print(qrelQid())
+#print(len(qrelQid()))

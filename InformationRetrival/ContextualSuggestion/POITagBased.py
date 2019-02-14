@@ -19,6 +19,7 @@ from analysislib import clustering, optimization
 from sklearn.metrics.pairwise import cosine_similarity
 from InformationRetrival.Measures import TREC
 from analysislib import ranking
+import time
 
 class AbstractDataSource:
     def getCandidateArticles(self, user_id):
@@ -228,13 +229,19 @@ class WordEmbeddingBased(AbstractIR):
         final_param_map = {}
         for user_id in user_ids:
             preferences = self.datasource.getUserPreferences(user_id)
+            if preferences is None:
+                print("no preferences for user ", user_id)
+                continue
             profile_vector = self.__getProfile(preferences)
             if score_file is None:
                 arg_map = {}
                 arg_map['profile'] = profile_vector
                 arg_map['candidate'] = preferences
                 arg_map['user_id'] = user_id
+                st = time.time()
                 full_map = self.opt.traverse_search_space(self.score_file_generator, arg_map)
+                end = time.time()
+                print("time taken ", end - st)
                 if store_opt:
                     self.datasource.storeOptimizationInfo(user_id, full_map)
             elif param_type != 'all':
@@ -291,9 +298,10 @@ class WordEmbeddingBased(AbstractIR):
         ranked_poi.append(cand_score)
         pref_list.append(candidate)
         #print(ranked_poi)
-        TREC.create_qrel_from_preferences(pref_list, [user_id], "qrel.txt", level=self.qrel_level)
-        TREC.create_output_file(ranked_poi, [user_id], "temp.txt")
-        param_score = TREC.get_score("qrel.txt", "temp.txt")
+        name_prefix = str(user_id) + "_" + str(param[0]) + "_" + str(param[1])
+        TREC.create_qrel_from_preferences(pref_list, [user_id], name_prefix + "_qrel.txt", level=self.qrel_level)
+        TREC.create_output_file(ranked_poi, [user_id], name_prefix + "_temp.txt")
+        param_score = TREC.get_score(name_prefix + "_qrel.txt", name_prefix + "_temp.txt")
         return param_score
 
     def rocchioRanker(self, user_profile, params, candidate_suggestion):
