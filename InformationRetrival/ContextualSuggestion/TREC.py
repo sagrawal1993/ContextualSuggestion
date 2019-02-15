@@ -18,6 +18,7 @@ class TRECDataSource:
             for cand in req_json["candidates"]:
                 self.user_info[user_id]["candidate"][cand['documentId']] = cand['tags']
         self.qrel_qid = qrelQid()
+        self.qrel_qid = list(self.qrel_qid.intersection(self.user_info.keys()))
         self.profile_folder = profile_folder
 
     def getCandidateArticles(self, user_id):
@@ -95,6 +96,10 @@ class TRECDataSource:
     def find_all_param(self):
         params_list = ["ndcg_cut_5", "ndcg_cut_10", "ndcg_cut_15", "ndcg_cut_20"]
         qid_parm_map = {}
+        print(self.qrel_qid)
+        print(self.user_info.keys())
+        user_id_list = set(self.qrel_qid).intersection(self.user_info.keys())
+        print("total user ids to be consider ", len(user_id_list))
         for user_id in self.qrel_qid:
             file_name = os.path.join(self.profile_folder, "opt_" + str(user_id) + ".json")
             if "opt_" + str(user_id) + ".json" not in os.listdir(self.profile_folder):
@@ -137,6 +142,7 @@ def create_word_embedding(sentence_list=None, model_file="embedding.bin"):
     param_map["size"] = 9
     param_map["iter"] = 1000
     param_map["window"] = 5
+    #param_map["doc_embedding"] = "centroid"
     param_map["doc_embedding"] = "vectorSum"
     param_map["analyzer"] = tags_preprocess
     word_embedding = TextEmbedding.getTextEmbedder("word_embedding", param_map)
@@ -152,10 +158,10 @@ def qrelQid():
     lines = open("/Users/surajagrawal/suraj/MyProjects/informatinoretrival/data/qrels_TREC2016_CS.txt").read().strip().split("\n")
     for line in lines:
         qid = line.split("\t")[0]
-        if "opt_" + qid + ".json" not in os.listdir("/Users/surajagrawal/suraj/MyProjects/informatinoretrival/data/2016EmbWeightedRocchioMultiLevelSumTag"):
-            qid_list.append(qid)
+        #if "opt_" + qid + ".json" not in os.listdir("/Users/surajagrawal/suraj/MyProjects/informatinoretrival/data/2016EmbWeightedRocchioMultiLevelSumTag"):
+        qid_list.append(qid)
 
-    return list(set(qid_list))
+    return set(qid_list)
 
 
 def getTagData(consider_tag=["2015", "2016_phase1", "2016_phase2"]):
@@ -200,22 +206,31 @@ Generate output file with the given parameters to get the score.
 """
 def process():
     grid_opt_param = {}
-    grid_opt_param["param_min"] = [-4.0, -4.0]
+    grid_opt_param["param_min"] = [-2.0, -2.0]
     grid_opt_param["param_max"] = [8.0, 8.0]
     grid_opt_param["step_size"] = 0.2
-    datasource = TRECDataSource("../../data/Phase2_requests.json",
-                                "/Users/surajagrawal/suraj/MyProjects/informatinoretrival/data/2016EmbWeightedRocchioMultiLevelSumTag")
-    embedding = create_word_embedding(model_file="../../data/embdding/embedding_2016.bin")
-    poi_ranker = WordEmbeddingBased(datasource, embedding, profile_vector="weighted", profile_type="individual",
-                                    ranking="rocchio", rating_shift=0, opt_name="grid_search",
+    all_params = {}
+    all_params['data_folder'] = "/Users/surajagrawal/suraj/MyProjects/informatinoretrival/data/AllEmbWeightedRocchioMultiLevelSumTag"
+    all_params['request_file'] = "../../data/Phase2_requests.json"
+    all_params['embedding'] = "../../data/embdding/embedding_all.bin"
+    all_params['profile'] = "weighted"
+    all_params['ranking'] = "rocchio"
+    datasource = TRECDataSource(all_params['request_file'], all_params['data_folder'])
+    embedding = create_word_embedding(model_file=all_params['embedding'])
+    poi_ranker = WordEmbeddingBased(datasource, embedding, profile_vector=all_params['profile'], profile_type="individual",
+                                    ranking=all_params['ranking'], rating_shift=0, opt_name="grid_search",
                                     opt_param=grid_opt_param)
     poi_ranker.fit(user_ids=datasource.qrel_qid, param_type="all", score_file=None, store_profile=True)
     user_recommendation = []
     for user_id in datasource.qrel_qid:
         output = poi_ranker.getArticles(user_id)
         user_recommendation.append(output)
-    TREC.create_output_file(user_recommendation, list(datasource.user_info.keys()), "result.txt")
-
+    TREC.create_output_file(user_recommendation, list(datasource.qrel_qid), "result.txt")
+    """
+    mp = datasource.find_all_param()
+    fp1= open("test.json","w")
+    json.dump(mp, fp1)
+    """
 #tag_list = getTagData(["2016_phase1", "2016_phase2"])
 #tag1 = getTagData()
 #print(len(tag_list), len(tag1))

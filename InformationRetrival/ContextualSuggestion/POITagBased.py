@@ -19,7 +19,7 @@ from analysislib import clustering, optimization
 from sklearn.metrics.pairwise import cosine_similarity
 from InformationRetrival.Measures import TREC
 from analysislib import ranking
-import time
+import time, os
 
 class AbstractDataSource:
     def getCandidateArticles(self, user_id):
@@ -263,7 +263,7 @@ class WordEmbeddingBased(AbstractIR):
         if param_type == 'all':
             full_map = self.datasource.getOptimizationInfo('all')
             args = {}
-            args['qid'] = 'all'
+            args['user_id'] = 'all'
             args['measure'] = measure
             args['score_map'] = full_map
             params = self.opt.maximize(self.score_selector, args)
@@ -279,7 +279,7 @@ class WordEmbeddingBased(AbstractIR):
     def score_selector(self, param, args):
         score_map = args["score_map"]
         measure = args["measure"]
-        qid = args["qid"]
+        qid = args["user_id"]
         if score_map is None:
             score_map = self.score_file_generator(param, args)
         measure_score = score_map[str(param[0])][str(param[1])][qid]
@@ -302,6 +302,8 @@ class WordEmbeddingBased(AbstractIR):
         TREC.create_qrel_from_preferences(pref_list, [user_id], name_prefix + "_qrel.txt", level=self.qrel_level)
         TREC.create_output_file(ranked_poi, [user_id], name_prefix + "_temp.txt")
         param_score = TREC.get_score(name_prefix + "_qrel.txt", name_prefix + "_temp.txt")
+        os.remove(name_prefix + "_temp.txt")
+        os.remove(name_prefix + "_qrel.txt")
         return param_score
 
     def rocchioRanker(self, user_profile, params, candidate_suggestion):
