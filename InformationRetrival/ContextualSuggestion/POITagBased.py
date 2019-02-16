@@ -338,10 +338,10 @@ class WordEmbeddingBased(AbstractIR):
         doc_id_score_map = {}
         vector_list = []
         for doc in candidate_suggestion:
-            doc_vec = self.tag_embedding.get_vec_tags(doc['tags'])
+            doc_vec = self.tag_embedding.get_doc_embedding(doc['tags'])
             temp = cosine_similarity([doc_vec], user_profile)[0]
             vector_list.append(temp)
-        score_list = learner.transform(vector_list)
+        score_list = learner.predict(vector_list)
         for i, doc in enumerate(candidate_suggestion):
             doc_id_score_map[doc['documentId']] = score_list[i]
         return doc_id_score_map
@@ -357,7 +357,7 @@ class WordEmbeddingBased(AbstractIR):
         if params is not None:
             a, b, value = params[0], params[1], -1
             user_prof = self.__getProfile(self.datasource.getUserPreferences(user_id))
-        else:
+        elif self.ranking == "rocchio" or self.ranking == "similarity":
             full_info = self.full_info_map[user_id]
             a, b, value = full_info['final_param']
             user_prof = full_info['user_prof']
@@ -367,6 +367,8 @@ class WordEmbeddingBased(AbstractIR):
         elif self.ranking == "similarity":
             cand_score = self.similarityRanker(user_prof, [a, 1, b], detailed_candidate_article)
         elif params is None:
+            full_info = self.full_info_map[user_id]
             learner = full_info['learner']
+            user_prof = full_info['user_prof']
             cand_score = self.learnedRank(user_prof, learner, detailed_candidate_article)
         return cand_score
