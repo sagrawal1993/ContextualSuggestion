@@ -214,13 +214,13 @@ def process():
     all_params['request_file'] = "../../data/Phase2_requests.json"
     all_params['embedding'] = "../../data/embdding/embedding_all.bin"
     all_params['profile'] = "weighted"
-    all_params['ranking'] = "rocchio"
+    all_params['ranking'] = "lambdaMART"
     datasource = TRECDataSource(all_params['request_file'], all_params['data_folder'])
     embedding = create_word_embedding(model_file=all_params['embedding'])
     poi_ranker = WordEmbeddingBased(datasource, embedding, profile_vector=all_params['profile'], profile_type="individual",
                                     ranking=all_params['ranking'], rating_shift=0, opt_name="grid_search",
                                     opt_param=grid_opt_param)
-    poi_ranker.fit(user_ids=datasource.qrel_qid, param_type="all", score_file=None, store_profile=True)
+    poi_ranker.fit(user_ids=datasource.qrel_qid, fit_type="learning", param_type="all", score_file="given", store_profile=True, measure="ndcg_cut_5")
     user_recommendation = []
     for user_id in datasource.qrel_qid:
         output = poi_ranker.getArticles(user_id)
