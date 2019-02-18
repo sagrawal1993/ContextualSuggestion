@@ -182,6 +182,7 @@ class WordEmbeddingBased(AbstractIR):
         final_param_map = {}
         all_vec = []
         all_rating = []
+        all_user = []
         for user_id in user_ids:
             preferences = self.datasource.getUserPreferences(user_id)
             profile_vector = self.__getProfile(preferences)
@@ -193,13 +194,14 @@ class WordEmbeddingBased(AbstractIR):
             if param_type == "all":
                 all_vec += vec_list
                 all_rating += rating_list
+                all_user += [user_id] * len(vec_list)
             else:
                 learner = ranking.getRanker(self.ranking)
-                learner.fit(vec_list, rating_list)
+                learner.fit(vec_list, rating_list, [user_id] * len(vec_list))
                 final_param_map[str(user_id)]["learner"] = learner
         if param_type == "all":
             learner = ranking.getRanker(self.ranking)
-            learner.fit(all_vec, all_rating)
+            learner.fit(all_vec, all_rating, all_user)
             for user_id in user_ids:
                 final_param_map[str(user_id)]["learner"] = learner
         self.full_info_map = final_param_map
@@ -321,7 +323,7 @@ class WordEmbeddingBased(AbstractIR):
         print("start similarity based ranker")
         doc_id_score_map = {}
         for doc in candidate_suggestion:
-            doc_vec = self.tag_embedding.get_vec_tags(doc['tags'])
+            doc_vec = self.tag_embedding.get_doc_embedding(doc['tags'])
             temp = cosine_similarity([doc_vec], user_profile)
             doc_id_score_map[doc['documentId']] = cosine_similarity(temp, [params])[0][0]
         return doc_id_score_map
@@ -329,7 +331,7 @@ class WordEmbeddingBased(AbstractIR):
     def __get_learning_vec(self, user_profile, candidate_suggestion):
         vector_list = []
         for doc in candidate_suggestion:
-            doc_vec = self.tag_embedding.get_vec_tags(doc['tags'])
+            doc_vec = self.tag_embedding.get_doc_embedding(doc['tags'])
             temp = cosine_similarity([doc_vec], user_profile)[0]
             vector_list.append(temp)
         return vector_list
@@ -338,10 +340,10 @@ class WordEmbeddingBased(AbstractIR):
         doc_id_score_map = {}
         vector_list = []
         for doc in candidate_suggestion:
-            doc_vec = self.tag_embedding.get_vec_tags(doc['tags'])
+            doc_vec = self.tag_embedding.get_doc_embedding(doc['tags'])
             temp = cosine_similarity([doc_vec], user_profile)[0]
             vector_list.append(temp)
-        score_list = learner.transform(vector_list)
+        score_list = learner.predict(vector_list)
         for i, doc in enumerate(candidate_suggestion):
             doc_id_score_map[doc['documentId']] = score_list[i]
         return doc_id_score_map
@@ -357,7 +359,7 @@ class WordEmbeddingBased(AbstractIR):
         if params is not None:
             a, b, value = params[0], params[1], -1
             user_prof = self.__getProfile(self.datasource.getUserPreferences(user_id))
-        else:
+        elif self.ranking == "rocchio" or self.ranking == "similarity":
             full_info = self.full_info_map[user_id]
             a, b, value = full_info['final_param']
             user_prof = full_info['user_prof']
@@ -367,6 +369,8 @@ class WordEmbeddingBased(AbstractIR):
         elif self.ranking == "similarity":
             cand_score = self.similarityRanker(user_prof, [a, 1, b], detailed_candidate_article)
         elif params is None:
+            full_info = self.full_info_map[user_id]
             learner = full_info['learner']
+            user_prof = full_info['user_prof']
             cand_score = self.learnedRank(user_prof, learner, detailed_candidate_article)
         return cand_score
