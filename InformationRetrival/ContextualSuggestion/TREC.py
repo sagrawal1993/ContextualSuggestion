@@ -140,7 +140,7 @@ def create_word_embedding(sentence_list=None, model_file="embedding.bin"):
     param_map = {}
     param_map["min_count"] = 3
     param_map["size"] = 9
-    param_map["iter"] = 1000
+    param_map["iter"] = 500
     param_map["window"] = 5
     #param_map["doc_embedding"] = "centroid"
     param_map["doc_embedding"] = "vectorSum"
@@ -155,7 +155,7 @@ def create_word_embedding(sentence_list=None, model_file="embedding.bin"):
 
 def qrelQid():
     qid_list = []
-    lines = open("/Users/surajagrawal/suraj/MyProjects/informatinoretrival/data/qrels_TREC2016_CS.txt").read().strip().split("\n")
+    lines = open("../../data/qrels_TREC2016_CS.txt").read().strip().split("\n")
     for line in lines:
         qid = line.split("\t")[0]
         #if "opt_" + qid + ".json" not in os.listdir("/Users/surajagrawal/suraj/MyProjects/informatinoretrival/data/2016EmbWeightedRocchioMultiLevelSumTag"):
@@ -174,6 +174,7 @@ def getTagData(consider_tag=["2015", "2016_phase1", "2016_phase2"]):
     """
     sentence_list = []
     if "2015" in consider_tag:
+        print("adding 2015 tags")
         requests = open("../../data/batch_requests.json").read().strip().split("\n")
         for request in requests:
             req_json = json.loads(request)
@@ -182,6 +183,7 @@ def getTagData(consider_tag=["2015", "2016_phase1", "2016_phase2"]):
                 if "tags" in candidate and len(candidate["tags"])>0 :
                     sentence_list.append(candidate["tags"])
     if "2016_phase1" in consider_tag:
+        print("adding 2016 phase1 tags")
         requests = open("../../data/Phase1_requests.json").read().strip().split("\n")
         for request in requests:
             req_json = json.loads(request)
@@ -191,6 +193,7 @@ def getTagData(consider_tag=["2015", "2016_phase1", "2016_phase2"]):
                     sentence_list.append(candidate["tags"])
 
     if "2016_phase2" in consider_tag:
+        print("adding 2016 phase2 tags")
         requests = open("../../data/Phase2_requests.json").read().strip().split("\n")
         for request in requests:
             req_json = json.loads(request)
@@ -206,11 +209,11 @@ Generate output file with the given parameters to get the score.
 """
 def process():
     grid_opt_param = {}
-    grid_opt_param["param_min"] = [-2.0, -2.0]
+    grid_opt_param["param_min"] = [-4.0, -4.0]
     grid_opt_param["param_max"] = [8.0, 8.0]
     grid_opt_param["step_size"] = 0.2
     all_params = {}
-    all_params['data_folder'] = "/Users/surajagrawal/suraj/MyProjects/informatinoretrival/data/AllEmbWeightedRocchioMultiLevelSumTag"
+    all_params['data_folder'] = "../../data/AllEmbWeightedRocchioMultiLevelSumTag"
     all_params['request_file'] = "../../data/Phase2_requests.json"
     all_params['embedding'] = "../../data/embdding/embedding_all.bin"
     all_params['profile'] = "weighted"
@@ -220,12 +223,15 @@ def process():
     poi_ranker = WordEmbeddingBased(datasource, embedding, profile_vector=all_params['profile'], profile_type="individual",
                                     ranking=all_params['ranking'], rating_shift=0, opt_name="grid_search",
                                     opt_param=grid_opt_param)
-    poi_ranker.fit(user_ids=datasource.qrel_qid, param_type="all", score_file=None, store_profile=True)
+    poi_ranker.fit(user_ids=datasource.qrel_qid, param_type="all", score_file="Given", store_profile=True)
     user_recommendation = []
     for user_id in datasource.qrel_qid:
         output = poi_ranker.getArticles(user_id)
         user_recommendation.append(output)
     TREC.create_output_file(user_recommendation, list(datasource.qrel_qid), "result.txt")
+    score = TREC.get_score("../../data/qrels_TREC2016_CS.txt", "result.txt")["all"]
+    print(score)
+    print(score['ndcg_cut_5'], score["recip_rank"], score['P_5'], score['ndcg'], score["map"])
     """
     mp = datasource.find_all_param()
     fp1= open("test.json","w")
@@ -234,7 +240,7 @@ def process():
 #tag_list = getTagData(["2016_phase1", "2016_phase2"])
 #tag1 = getTagData()
 #print(len(tag_list), len(tag1))
-#create_word_embedding(tag_list, model_file="embedding_2016.bin")
+#create_word_embedding(tag_list, model_file="../../data/embdding/embedding_2016_500_iter.bin")
 #print(len(tag_list))
 
 process()

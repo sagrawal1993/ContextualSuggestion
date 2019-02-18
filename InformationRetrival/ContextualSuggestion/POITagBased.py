@@ -124,8 +124,10 @@ class WordEmbeddingBased(AbstractIR):
         self.opt = optimization.getSearchOptimizer(opt_name, opt_param)
         self.qrel_level = qrel_level
         if profile_vector == "weighted":
+            print("weighted profile generator")
             self.doc_combiner = clustering.getClusterEmbeddingFromPoints("weightedCentroid", {"dim": self.tag_embedding.size})
         else:
+            print("unweighted profile generater")
             self.doc_combiner = clustering.getClusterEmbeddingFromPoints("centroid", {"dim": self.tag_embedding.size})
         print("This is instance for getting articles recommendation based on word embedding")
 
