@@ -20,6 +20,11 @@ class TRECDataSource:
         self.qrel_qid = qrelQid()
         self.qrel_qid = list(self.qrel_qid.intersection(self.user_info.keys()))
         self.profile_folder = profile_folder
+        self.params_list = ["ndcg_cut_5", "ndcg_cut_10", "ndcg_cut_15", "ndcg_cut_20", "ndcg_cut_30", "ndcg", "P_5", "P_10",
+                       "P_15", "P_20", "P_30", "map", "recip_rank", "map_cut_5", "map_cut_10", "map_cut_15",
+                       "map_cut_20",
+                       "map_cut_30", "Rprec", "bpref", "recall_5", "recall_10", "recall_15", "recall_20", "recall_30"]
+        self.mp = None
 
     def getCandidateArticles(self, user_id):
         return self.user_info[user_id]["candidate"].keys()
@@ -83,8 +88,9 @@ class TRECDataSource:
             file_name = os.path.join(self.profile_folder, "opt_" + str(user_id) + ".json")
             fp = open(file_name)
             return json.load(fp)
-        mp = self.find_all_param()
-        return mp
+        if self.mp is None:
+            self.mp = self.find_all_param()
+        return self.mp
 
 
     def storeOptimizationInfo(self, user_id, param_score):
@@ -94,7 +100,9 @@ class TRECDataSource:
         return
 
     def find_all_param(self):
-        params_list = ["ndcg_cut_5", "ndcg_cut_10", "ndcg_cut_15", "ndcg_cut_20"]
+        params_list = ["ndcg_cut_5", "ndcg_cut_10", "ndcg_cut_15", "ndcg_cut_20", "ndcg_cut_30", "ndcg", "P_5", "P_10",
+                       "P_15", "P_20", "P_30", "map", "recip_rank", "map_cut_5", "map_cut_10", "map_cut_15", "map_cut_20",
+                       "map_cut_30", "Rprec", "bpref", "recall_5", "recall_10", "recall_15", "recall_20", "recall_30"]
         qid_parm_map = {}
         print(self.qrel_qid)
         print(self.user_info.keys())
@@ -118,6 +126,7 @@ class TRECDataSource:
                         if param not in qid_parm_map[a][b]['all']:
                             qid_parm_map[a][b]['all'][param] = 0.0
                         qid_parm_map[a][b]['all'][param] += float(par_map[a][b][user_id][param])
+
         return qid_parm_map
 
 # create a sentence from the tags.
@@ -213,9 +222,9 @@ def process():
     grid_opt_param["param_max"] = [8.0, 8.0]
     grid_opt_param["step_size"] = 0.2
     all_params = {}
-    all_params['data_folder'] = "../../data/AllEmbWeightedRocchioMultiLevelSumTag"
+    all_params['data_folder'] = "../../data/2016EmbWeightedRocchioMultiLevelsumTag500Iter"
     all_params['request_file'] = "../../data/Phase2_requests.json"
-    all_params['embedding'] = "../../data/embdding/embedding_all.bin"
+    all_params['embedding'] = "../../data/embdding/embedding_2016_500_iter.bin"
     all_params['profile'] = "weighted"
     all_params['ranking'] = "rocchio"
     datasource = TRECDataSource(all_params['request_file'], all_params['data_folder'])
@@ -223,15 +232,20 @@ def process():
     poi_ranker = WordEmbeddingBased(datasource, embedding, profile_vector=all_params['profile'], profile_type="individual",
                                     ranking=all_params['ranking'], rating_shift=0, opt_name="grid_search",
                                     opt_param=grid_opt_param)
-    poi_ranker.fit(user_ids=datasource.qrel_qid, param_type="all", score_file="Given", store_profile=True)
-    user_recommendation = []
-    for user_id in datasource.qrel_qid:
-        output = poi_ranker.getArticles(user_id)
-        user_recommendation.append(output)
-    TREC.create_output_file(user_recommendation, list(datasource.qrel_qid), "result.txt")
-    score = TREC.get_score("../../data/qrels_TREC2016_CS.txt", "result.txt")["all"]
-    print(score)
-    print(score['ndcg_cut_5'], score["recip_rank"], score['P_5'], score['ndcg'], score["map"])
+    whole_map = {}
+    for par in datasource.params_list:
+        poi_ranker.fit(user_ids=datasource.qrel_qid, param_type="user_id", score_file="Given", store_profile=True, measure=par)
+        user_recommendation = []
+        for user_id in datasource.qrel_qid:
+            output = poi_ranker.getArticles(user_id)
+            user_recommendation.append(output)
+        TREC.create_output_file(user_recommendation, list(datasource.qrel_qid), "result.txt")
+        score = TREC.get_score("../../data/qrels_TREC2016_CS.txt", "result.txt")["all"]
+        print(par)
+        print(score['ndcg_cut_5'], score['P_5'], score['P_10'], score["recip_rank"], score['ndcg'], score['map'], score["bpref"], score["Rprec"])
+        whole_map[par] = [score['ndcg_cut_5'], score['P_5'], score['P_10'], score["recip_rank"], score['ndcg'], score['map'],
+                          score["bpref"], score["Rprec"]]
+    print(whole_map)
     """
     mp = datasource.find_all_param()
     fp1= open("test.json","w")
