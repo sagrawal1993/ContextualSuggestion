@@ -4,6 +4,7 @@ import re
 from InformationRetrival.ContextualSuggestion.POITagBased import WordEmbeddingBased
 from TextAnalysislib import TextEmbedding
 from InformationRetrival.Measures import TREC
+import unidecode
 
 class TRECDataSource:
     def __init__(self, file_name, profile_folder):
@@ -133,10 +134,14 @@ class TRECDataSource:
 def tags_preprocess(tags):
     processed = []
     for tg in tags:
-        st = tg.encode('ascii','ignore').lower()
-        if st != "didn't load":
-            st = st.decode()
-            st = st.replace("'s", "").replace(" ", "")
+        tg = unidecode.unidecode(tg)
+        st = tg.encode('ascii', 'ignore').lower()
+        st = st.decode()
+
+        st = st.replace("'s", "").replace(" ", "")
+        if st != "didn'tload" and st != "noneapply":
+            if st == "cafs":
+                print(tags)
             processed.append(st)
     return processed
 
@@ -149,7 +154,7 @@ def create_word_embedding(sentence_list=None, model_file="embedding.bin"):
     param_map = {}
     param_map["min_count"] = 3
     param_map["size"] = 9
-    param_map["iter"] = 500
+    param_map["iter"] = 1000
     param_map["window"] = 5
     #param_map["doc_embedding"] = "centroid"
     param_map["doc_embedding"] = "vectorSum"
@@ -216,46 +221,146 @@ def getTagData(consider_tag=["2015", "2016_phase1", "2016_phase2"]):
 @TODO:
 Generate output file with the given parameters to get the score.
 """
-def process():
-    grid_opt_param = {}
-    grid_opt_param["param_min"] = [-4.0, -4.0]
-    grid_opt_param["param_max"] = [8.0, 8.0]
-    grid_opt_param["step_size"] = 0.2
-    all_params = {}
-    all_params['data_folder'] = "../../data/2016EmbWeightedRocchioMultiLevelsumTag500Iter"
-    all_params['request_file'] = "../../data/Phase2_requests.json"
-    all_params['embedding'] = "../../data/embdding/embedding_2016_500_iter.bin"
-    all_params['profile'] = "weighted"
-    all_params['ranking'] = "rocchio"
+def process(grid_opt_param, all_params, parm_file_generate=False):
+
     datasource = TRECDataSource(all_params['request_file'], all_params['data_folder'])
     embedding = create_word_embedding(model_file=all_params['embedding'])
     poi_ranker = WordEmbeddingBased(datasource, embedding, profile_vector=all_params['profile'], profile_type="individual",
                                     ranking=all_params['ranking'], rating_shift=0, opt_name="grid_search",
                                     opt_param=grid_opt_param)
-    whole_map = {}
-    for par in datasource.params_list:
-        poi_ranker.fit(user_ids=datasource.qrel_qid, param_type="user_id", score_file="Given", store_profile=True, measure=par)
-        user_recommendation = []
-        for user_id in datasource.qrel_qid:
-            output = poi_ranker.getArticles(user_id)
-            user_recommendation.append(output)
-        TREC.create_output_file(user_recommendation, list(datasource.qrel_qid), "result.txt")
-        score = TREC.get_score("../../data/qrels_TREC2016_CS.txt", "result.txt")["all"]
-        print(par)
-        print(score['ndcg_cut_5'], score['P_5'], score['P_10'], score["recip_rank"], score['ndcg'], score['map'], score["bpref"], score["Rprec"])
-        whole_map[par] = [score['ndcg_cut_5'], score['P_5'], score['P_10'], score["recip_rank"], score['ndcg'], score['map'],
+
+    if parm_file_generate:
+        poi_ranker.fit(user_ids=datasource.qrel_qid, param_type="all", score_file=None, store_profile=True, measure="ndcg_cut_5")
+    else:
+        whole_map = {}
+        for par in datasource.params_list:
+            poi_ranker.fit(user_ids=datasource.qrel_qid, param_type="user_id", score_file="Given", store_profile=True, measure=par)
+            user_recommendation = []
+            for user_id in datasource.qrel_qid:
+                output = poi_ranker.getArticles(user_id)
+                user_recommendation.append(output)
+            TREC.create_output_file(user_recommendation, list(datasource.qrel_qid), "result.txt")
+            score = TREC.get_score("../../data/qrels_TREC2016_CS.txt", "result.txt")["all"]
+            print(par)
+            print(score['ndcg_cut_5'], score['P_5'], score['P_10'], score["recip_rank"], score['ndcg'], score['map'], score["bpref"], score["Rprec"])
+            whole_map[par] = [score['ndcg_cut_5'], score['P_5'], score['P_10'], score["recip_rank"], score['ndcg'], score['map'],
                           score["bpref"], score["Rprec"]]
-    print(whole_map)
+        print(whole_map)
+        return whole_map
     """
     mp = datasource.find_all_param()
     fp1= open("test.json","w")
     json.dump(mp, fp1)
     """
 #tag_list = getTagData(["2016_phase1", "2016_phase2"])
-#tag1 = getTagData()
+#for tags in tag_list:
+#    print(tags_preprocess(tags))
+#tag_list = getTagData()
 #print(len(tag_list), len(tag1))
-#create_word_embedding(tag_list, model_file="../../data/embdding/embedding_2016_500_iter.bin")
+#create_word_embedding(tag_list, model_file="../../data/embdding/embedding_correct_2016_1000_iter.bin")
 #print(len(tag_list))
+#print(tags_preprocess(["Didn't load"]))
 
-process()
+
 #print(len(qrelQid()))
+final_map = {}
+
+grid_opt_param = {}
+grid_opt_param["param_min"] = [-4.0, -4.0]
+grid_opt_param["param_max"] = [8.0, 8.0]
+grid_opt_param["step_size"] = 0.2
+all_params = {}
+all_params['data_folder'] = "../../data/CorrectAllEmbWeightedRocchioMultiLevelSumTag1000Iter"
+all_params['request_file'] = "../../data/Phase2_requests.json"
+all_params['embedding'] = "../../data/embdding/embedding_correct_all_1000_iter.bin"
+all_params['profile'] = "weighted"
+all_params['ranking'] = "rocchio"
+final_map["CorrectAllEmbWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
+
+grid_opt_param = {}
+grid_opt_param["param_min"] = [-4.0, -4.0]
+grid_opt_param["param_max"] = [8.0, 8.0]
+grid_opt_param["step_size"] = 0.2
+all_params = {}
+all_params['data_folder'] = "../../data/Correct2016EmbWeightedRocchioMultiLevelSumTag1000Iter"
+all_params['request_file'] = "../../data/Phase2_requests.json"
+all_params['embedding'] = "../../data/embdding/embedding_correct_2016_1000_iter.bin"
+all_params['profile'] = "weighted"
+all_params['ranking'] = "rocchio"
+final_map["Correct2016EmbWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
+
+grid_opt_param = {}
+grid_opt_param["param_min"] = [-4.0, -4.0]
+grid_opt_param["param_max"] = [8.0, 8.0]
+grid_opt_param["step_size"] = 0.2
+all_params = {}
+all_params['data_folder'] = "../../data/CorrectAllEmbWeightedRocchioMultiLevelSumTag500Iter"
+all_params['request_file'] = "../../data/Phase2_requests.json"
+all_params['embedding'] = "../../data/embdding/embedding_correct_all_500_iter.bin"
+all_params['profile'] = "weighted"
+all_params['ranking'] = "rocchio"
+final_map["CorrectAllEmbWeightedRocchioMultiLevelSumTag500Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
+
+grid_opt_param = {}
+grid_opt_param["param_min"] = [-4.0, -4.0]
+grid_opt_param["param_max"] = [8.0, 8.0]
+grid_opt_param["step_size"] = 0.2
+all_params = {}
+all_params['data_folder'] = "../../data/Correct2016EmbWeightedRocchioMultiLevelSumTag500Iter"
+all_params['request_file'] = "../../data/Phase2_requests.json"
+all_params['embedding'] = "../../data/embdding/embedding_correct_2016_500_iter.bin"
+all_params['profile'] = "weighted"
+all_params['ranking'] = "rocchio"
+final_map["Correct2016EmbWeightedRocchioMultiLevelSumTag500Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
+
+grid_opt_param = {}
+grid_opt_param["param_min"] = [-4.0, -8.0]
+grid_opt_param["param_max"] = [8.0, 4.0]
+grid_opt_param["step_size"] = 0.2
+all_params = {}
+all_params['data_folder'] = "../../data/Correct2016EmbUnWeightedRocchioMultiLevelSumTag1000Iter"
+all_params['request_file'] = "../../data/Phase2_requests.json"
+all_params['embedding'] = "../../data/embdding/embedding_correct_2016_1000_iter.bin"
+all_params['profile'] = "unweighted"
+all_params['ranking'] = "rocchio"
+final_map["Correct2016EmbUnWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
+
+grid_opt_param = {}
+grid_opt_param["param_min"] = [-4.0, -8.0]
+grid_opt_param["param_max"] = [8.0, 4.0]
+grid_opt_param["step_size"] = 0.2
+all_params = {}
+all_params['data_folder'] = "../../data/CorrectAllEmbUnWeightedRocchioMultiLevelSumTag1000Iter"
+all_params['request_file'] = "../../data/Phase2_requests.json"
+all_params['embedding'] = "../../data/embdding/embedding_correct_all_1000_iter.bin"
+all_params['profile'] = "unweighted"
+all_params['ranking'] = "rocchio"
+final_map["CorrectAllEmbUnWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
+
+grid_opt_param = {}
+grid_opt_param["param_min"] = [-4.0, -8.0]
+grid_opt_param["param_max"] = [8.0, 4.0]
+grid_opt_param["step_size"] = 0.2
+all_params = {}
+all_params['data_folder'] = "../../data/Correct2016EmbUnWeightedRocchioMultiLevelSumTag500Iter"
+all_params['request_file'] = "../../data/Phase2_requests.json"
+all_params['embedding'] = "../../data/embdding/embedding_correct_2016_500_iter.bin"
+all_params['profile'] = "unweighted"
+all_params['ranking'] = "rocchio"
+final_map["Correct2016EmbUnWeightedRocchioMultiLevelSumTag500Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
+
+grid_opt_param = {}
+grid_opt_param["param_min"] = [-4.0, -8.0]
+grid_opt_param["param_max"] = [8.0, 4.0]
+grid_opt_param["step_size"] = 0.2
+all_params = {}
+all_params['data_folder'] = "../../data/CorrectAllEmbUnWeightedRocchioMultiLevelSumTag500Iter"
+all_params['request_file'] = "../../data/Phase2_requests.json"
+all_params['embedding'] = "../../data/embdding/embedding_correct_all_500_iter.bin"
+all_params['profile'] = "unweighted"
+all_params['ranking'] = "rocchio"
+final_map["CorrectAllEmbUnWeightedRocchioMultiLevelSumTag500Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
+
+print(final_map)
+fp = open("all_unique.json", "w")
+json.dump(final_map, fp)
