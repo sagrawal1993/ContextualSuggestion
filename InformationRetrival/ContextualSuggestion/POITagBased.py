@@ -19,6 +19,8 @@ from analysislib import clustering, optimization
 from sklearn.metrics.pairwise import cosine_similarity
 from InformationRetrival.Measures import TREC
 from analysislib import ranking
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import cross_val_score
 import time, os
 
 class AbstractDataSource:
@@ -374,3 +376,107 @@ class WordEmbeddingBased(AbstractIR):
             user_prof = full_info['user_prof']
             cand_score = self.learnedRank(user_prof, learner, detailed_candidate_article)
         return cand_score
+
+
+class SeasonTripTypeRelevance:
+    """
+    This will find the relevance between tag and the season and group.
+    ['winter', `summer', `autumn', `spring', `friends', `family', `alone', `others']
+
+    """
+
+    def __init__(self, datasource, tag_embedding, poi_relevence=False):
+        self.datasource = datasource
+        self.poi_relevance = poi_relevence
+        self.tag_embedding = tag_embedding
+        self.features = ['winter', 'summer', 'autumn', 'spring', 'friends', 'family', 'alone', 'others']
+
+    def fit(self, context_list):
+        X = []
+        Y = []
+        for context in context_list:
+            feature_map = {}
+            for feature in self.features:
+                feature_map[feature] = 0
+            if "season" not in context or "group" not in context:
+                continue
+            season = context["season"]
+            group = context["group"]
+            feature_map[season] = 1
+            feature_map[group] = 1
+            for cand in context["candidates"]:
+                if "rating" not in cand or "tags" not in cand or len(cand["tags"]) <= 0:
+                    continue
+                rating = int(cand["rating"])
+                tags = self.tag_embedding.create_token_string(cand['tags'])
+                if self.poi_relevance is False:
+                    print("fitting the tags.")
+                    for tag in tags:
+                        emb = self.tag_embedding.get_word_embedding(tag)
+                        if emb is None:
+                            continue
+                        print(rating)
+                        if rating > 2:
+                            Y.append(1)
+                        else:
+                            Y.append(0)
+                        x = list(feature_map.values()) + list(emb)
+                        X.append(x)
+                else:
+                    print("fitting the poi")
+                    emb = self.tag_embedding.get_doc_embedding(tags)
+                    if emb is None:
+                        continue
+                    print(rating)
+                    if rating > 2:
+                        Y.append(1)
+                    else:
+                        Y.append(0)
+                    x = list(feature_map.values()) + list(emb)
+                    X.append(x)
+
+        print("Training point", len(X), len(Y))
+        print("sum", sum(Y))
+        self.clf = KNeighborsClassifier(n_neighbors=5)
+        scores = cross_val_score(self.clf, X, Y, cv=2)
+        print(scores)
+        #self.clf.fit(X, Y)
+
+    def getRelevance(self, season, group, user_id):
+        candidate_articles = self.datasource.getCandidateArticles(user_id)
+        final_output = {}
+        feature_map = {}
+        for feature in self.features:
+            feature_map[feature] = 0
+        feature_map[season] = 1
+        feature_map[group] = 1
+        for doc_id in candidate_articles:
+            tags = self.datasource.getArticleTags(user_id, doc_id)
+            tags = self.tag_embedding.create_token_string(tags)
+            if self.poi_relevance:
+                out = self.__get_poi_context_relevance(feature_map, tags)
+            else:
+                out = self.__get_tag_context_relevance(feature_map, tags)
+            final_output[doc_id] = out
+        return final_output
+
+    def __get_poi_context_relevance(self, feature_map, tags):
+        poi_vec = self.tag_embedding.get_doc_embedding(tags)
+        vec = list(feature_map.values()) + list(poi_vec)
+        out = self.clf.predict([vec])
+        return out[0]
+
+    def __get_tag_context_relevance(self, feature_map, tags):
+        vector_list = []
+        for tag in tags:
+            print(tag)
+            emb = self.tag_embedding.get_word_embedding(tag)
+            vec = list(feature_map.values()) + list(emb)
+            vector_list.append(vec)
+        if len(vector_list) == 0:
+            return 0
+        prediction = self.clf.predict(vector_list)
+        if sum(prediction) > len(vector_list)/2.0:
+            return 1
+        else:
+            return 0

@@ -1,7 +1,7 @@
 import json
 import os
 import re
-from InformationRetrival.ContextualSuggestion.POITagBased import WordEmbeddingBased
+from InformationRetrival.ContextualSuggestion.POITagBased import WordEmbeddingBased, SeasonTripTypeRelevance
 from TextAnalysislib import TextEmbedding
 from InformationRetrival.Measures import TREC
 import unidecode
@@ -16,6 +16,9 @@ class TRECDataSource:
             self.user_info[user_id] = {}
             self.user_info[user_id]["preferences"] = req_json["body"]["person"]["preferences"]
             self.user_info[user_id]["candidate"] = {}
+            self.user_info[user_id]["season"] = req_json["body"]["season"]
+            self.user_info[user_id]["group"] = req_json["body"]["group"]
+
             for cand in req_json["candidates"]:
                 self.user_info[user_id]["candidate"][cand['documentId']] = cand['tags']
         self.qrel_qid = qrelQid()
@@ -178,6 +181,20 @@ def qrelQid():
     return set(qid_list)
 
 
+def getContextData():
+    queries = open("../../data/batch_requests.json").read().strip().split("\n")
+    data_point_list = []
+    for query in queries:
+        data_point = {}
+        mp = json.loads(query)['body']
+        if 'season' not in mp or 'group' not in mp:
+            continue
+        data_point['season'] = mp['season']
+        data_point['group'] = mp['group']
+        data_point['candidates'] = mp['person']['preferences']
+        data_point_list.append(data_point)
+    return data_point_list
+
 def getTagData(consider_tag=["2015", "2016_phase1", "2016_phase2"]):
     """
     It will give the tag list for generating the tag embedding from the request file.
@@ -229,6 +246,10 @@ def process(grid_opt_param, all_params, parm_file_generate=False):
                                     ranking=all_params['ranking'], rating_shift=0, opt_name="grid_search",
                                     opt_param=grid_opt_param)
 
+    context_relevence = SeasonTripTypeRelevance(datasource, embedding, True)
+    context_info = json.load(open("../../data/context_data.json"))
+    context_relevence.fit(getContextData())
+    """
     if parm_file_generate:
         poi_ranker.fit(user_ids=datasource.qrel_qid, param_type="all", score_file=None, store_profile=True, measure="ndcg_cut_5")
     else:
@@ -238,6 +259,13 @@ def process(grid_opt_param, all_params, parm_file_generate=False):
             user_recommendation = []
             for user_id in datasource.qrel_qid:
                 output = poi_ranker.getArticles(user_id)
+                context_rel = context_relevence.getRelevance(season=datasource.user_info[user_id]["season"], group=datasource.user_info[user_id]["group"], user_id=user_id)
+                print(datasource.user_info[user_id]["season"], datasource.user_info[user_id]["group"])
+                print("output_before", output)
+                print("context relevance", context_rel)
+                for key in output:
+                    output[key] += context_rel[key]
+                print("output_after", output)
                 user_recommendation.append(output)
             TREC.create_output_file(user_recommendation, list(datasource.qrel_qid), "result.txt")
             score = TREC.get_score("../../data/qrels_TREC2016_CS.txt", "result.txt")["all"]
@@ -247,6 +275,8 @@ def process(grid_opt_param, all_params, parm_file_generate=False):
                           score["bpref"], score["Rprec"]]
         print(whole_map)
         return whole_map
+    
+    """
     """
     mp = datasource.find_all_param()
     fp1= open("test.json","w")
@@ -276,7 +306,8 @@ all_params['embedding'] = "../../data/embdding/embedding_correct_all_1000_iter.b
 all_params['profile'] = "weighted"
 all_params['ranking'] = "rocchio"
 final_map["CorrectAllEmbWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
-
+#print(getContextData())
+"""
 grid_opt_param = {}
 grid_opt_param["param_min"] = [-4.0, -4.0]
 grid_opt_param["param_max"] = [8.0, 8.0]
@@ -362,5 +393,6 @@ all_params['ranking'] = "rocchio"
 final_map["CorrectAllEmbUnWeightedRocchioMultiLevelSumTag500Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
 
 print(final_map)
-fp = open("all_unique.json", "w")
+fp = open("all_unique_with_context_tag.json", "w")
 json.dump(final_map, fp)
+"""
