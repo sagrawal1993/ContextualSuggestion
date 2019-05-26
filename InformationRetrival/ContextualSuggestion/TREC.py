@@ -270,97 +270,51 @@ grid_opt_param["param_min"] = [-4.0, -4.0]
 grid_opt_param["param_max"] = [8.0, 8.0]
 grid_opt_param["step_size"] = 0.2
 all_params = {}
-all_params['data_folder'] = "../../data/CorrectAllEmbWeightedRocchioMultiLevelSumTag1000Iter"
+all_params['data_folder'] = "../../data/AllEmbWeightedRocchioMultiLevelSumTag1000Iter"
 all_params['request_file'] = "../../data/Phase2_requests.json"
-all_params['embedding'] = "../../data/embdding/embedding_correct_all_1000_iter.bin"
+all_params['embedding'] = "../../data/embdding/embedding_all_1000_iter.bin"
 all_params['profile'] = "weighted"
 all_params['ranking'] = "rocchio"
-final_map["CorrectAllEmbWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
+final_map["AllEmbWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
 
 grid_opt_param = {}
 grid_opt_param["param_min"] = [-4.0, -4.0]
 grid_opt_param["param_max"] = [8.0, 8.0]
 grid_opt_param["step_size"] = 0.2
 all_params = {}
-all_params['data_folder'] = "../../data/Correct2016EmbWeightedRocchioMultiLevelSumTag1000Iter"
+all_params['data_folder'] = "../../data/2016EmbWeightedRocchioMultiLevelSumTag1000Iter"
 all_params['request_file'] = "../../data/Phase2_requests.json"
-all_params['embedding'] = "../../data/embdding/embedding_correct_2016_1000_iter.bin"
+all_params['embedding'] = "../../data/embdding/embedding_2016_1000_iter.bin"
 all_params['profile'] = "weighted"
 all_params['ranking'] = "rocchio"
-final_map["Correct2016EmbWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
-
-grid_opt_param = {}
-grid_opt_param["param_min"] = [-4.0, -4.0]
-grid_opt_param["param_max"] = [8.0, 8.0]
-grid_opt_param["step_size"] = 0.2
-all_params = {}
-all_params['data_folder'] = "../../data/CorrectAllEmbWeightedRocchioMultiLevelSumTag500Iter"
-all_params['request_file'] = "../../data/Phase2_requests.json"
-all_params['embedding'] = "../../data/embdding/embedding_correct_all_500_iter.bin"
-all_params['profile'] = "weighted"
-all_params['ranking'] = "rocchio"
-final_map["CorrectAllEmbWeightedRocchioMultiLevelSumTag500Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
-
-grid_opt_param = {}
-grid_opt_param["param_min"] = [-4.0, -4.0]
-grid_opt_param["param_max"] = [8.0, 8.0]
-grid_opt_param["step_size"] = 0.2
-all_params = {}
-all_params['data_folder'] = "../../data/Correct2016EmbWeightedRocchioMultiLevelSumTag500Iter"
-all_params['request_file'] = "../../data/Phase2_requests.json"
-all_params['embedding'] = "../../data/embdding/embedding_correct_2016_500_iter.bin"
-all_params['profile'] = "weighted"
-all_params['ranking'] = "rocchio"
-final_map["Correct2016EmbWeightedRocchioMultiLevelSumTag500Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
+final_map["2016EmbWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
 
 grid_opt_param = {}
 grid_opt_param["param_min"] = [-4.0, -8.0]
 grid_opt_param["param_max"] = [8.0, 4.0]
 grid_opt_param["step_size"] = 0.2
 all_params = {}
-all_params['data_folder'] = "../../data/Correct2016EmbUnWeightedRocchioMultiLevelSumTag1000Iter"
+all_params['data_folder'] = "../../data/2016EmbUnWeightedRocchioMultiLevelSumTag1000Iter"
 all_params['request_file'] = "../../data/Phase2_requests.json"
-all_params['embedding'] = "../../data/embdding/embedding_correct_2016_1000_iter.bin"
+all_params['embedding'] = "../../data/embdding/embedding_2016_1000_iter.bin"
 all_params['profile'] = "unweighted"
 all_params['ranking'] = "rocchio"
-final_map["Correct2016EmbUnWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
+final_map["2016EmbUnWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
 
 grid_opt_param = {}
 grid_opt_param["param_min"] = [-4.0, -8.0]
 grid_opt_param["param_max"] = [8.0, 4.0]
 grid_opt_param["step_size"] = 0.2
 all_params = {}
-all_params['data_folder'] = "../../data/CorrectAllEmbUnWeightedRocchioMultiLevelSumTag1000Iter"
+all_params['data_folder'] = "../../data/AllEmbUnWeightedRocchioMultiLevelSumTag1000Iter"
 all_params['request_file'] = "../../data/Phase2_requests.json"
-all_params['embedding'] = "../../data/embdding/embedding_correct_all_1000_iter.bin"
+all_params['embedding'] = "../../data/embdding/embedding_all_1000_iter.bin"
 all_params['profile'] = "unweighted"
 all_params['ranking'] = "rocchio"
-final_map["CorrectAllEmbUnWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
+final_map["AllEmbUnWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
 
-grid_opt_param = {}
-grid_opt_param["param_min"] = [-4.0, -8.0]
-grid_opt_param["param_max"] = [8.0, 4.0]
-grid_opt_param["step_size"] = 0.2
-all_params = {}
-all_params['data_folder'] = "../../data/Correct2016EmbUnWeightedRocchioMultiLevelSumTag500Iter"
-all_params['request_file'] = "../../data/Phase2_requests.json"
-all_params['embedding'] = "../../data/embdding/embedding_correct_2016_500_iter.bin"
-all_params['profile'] = "unweighted"
-all_params['ranking'] = "rocchio"
-final_map["Correct2016EmbUnWeightedRocchioMultiLevelSumTag500Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
 
-grid_opt_param = {}
-grid_opt_param["param_min"] = [-4.0, -8.0]
-grid_opt_param["param_max"] = [8.0, 4.0]
-grid_opt_param["step_size"] = 0.2
-all_params = {}
-all_params['data_folder'] = "../../data/CorrectAllEmbUnWeightedRocchioMultiLevelSumTag500Iter"
-all_params['request_file'] = "../../data/Phase2_requests.json"
-all_params['embedding'] = "../../data/embdding/embedding_correct_all_500_iter.bin"
-all_params['profile'] = "unweighted"
-all_params['ranking'] = "rocchio"
-final_map["CorrectAllEmbUnWeightedRocchioMultiLevelSumTag500Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
 
 print(final_map)
-fp = open("all_unique.json", "w")
+fp = open("all_uniq_param_1000.json", "w")
 json.dump(final_map, fp)
