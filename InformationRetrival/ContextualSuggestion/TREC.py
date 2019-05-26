@@ -244,39 +244,62 @@ def process(grid_opt_param, all_params, parm_file_generate=False):
     embedding = create_word_embedding(model_file=all_params['embedding'])
     poi_ranker = WordEmbeddingBased(datasource, embedding, profile_vector=all_params['profile'], profile_type="individual",
                                     ranking=all_params['ranking'], rating_shift=0, opt_name="grid_search",
-                                    opt_param=grid_opt_param)
+                                    opt_param=grid_opt_param, poi_relevance=False)
 
-    context_relevence = SeasonTripTypeRelevance(datasource, embedding, True)
-    context_info = json.load(open("../../data/context_data.json"))
-    context_relevence.fit(getContextData())
-    """
+    #context_relevence = SeasonTripTypeRelevance(datasource, embedding, True)
+    #context_info = json.load(open("../../data/context_data.json"))
+    #context_relevence.fit(getContextData())
+
     if parm_file_generate:
         poi_ranker.fit(user_ids=datasource.qrel_qid, param_type="all", score_file=None, store_profile=True, measure="ndcg_cut_5")
     else:
         whole_map = {}
-        for par in datasource.params_list:
-            poi_ranker.fit(user_ids=datasource.qrel_qid, param_type="user_id", score_file="Given", store_profile=True, measure=par)
-            user_recommendation = []
-            for user_id in datasource.qrel_qid:
-                output = poi_ranker.getArticles(user_id)
-                context_rel = context_relevence.getRelevance(season=datasource.user_info[user_id]["season"], group=datasource.user_info[user_id]["group"], user_id=user_id)
-                print(datasource.user_info[user_id]["season"], datasource.user_info[user_id]["group"])
-                print("output_before", output)
-                print("context relevance", context_rel)
-                for key in output:
-                    output[key] += context_rel[key]
-                print("output_after", output)
-                user_recommendation.append(output)
-            TREC.create_output_file(user_recommendation, list(datasource.qrel_qid), "result.txt")
-            score = TREC.get_score("../../data/qrels_TREC2016_CS.txt", "result.txt")["all"]
-            print(par)
-            print(score['ndcg_cut_5'], score['P_5'], score['P_10'], score["recip_rank"], score['ndcg'], score['map'], score["bpref"], score["Rprec"])
-            whole_map[par] = [score['ndcg_cut_5'], score['P_5'], score['P_10'], score["recip_rank"], score['ndcg'], score['map'],
+
+        poi_ranker.fit(user_ids=datasource.qrel_qid, fit_type="learning", param_type="user_id", score_file="Given",
+                       store_profile=True)
+        user_recommendation = []
+
+        for user_id in datasource.qrel_qid:
+            output = poi_ranker.getArticles(user_id)
+            # context_rel = context_relevence.getRelevance(season=datasource.user_info[user_id]["season"], group=datasource.user_info[user_id]["group"], user_id=user_id)
+            # print(datasource.user_info[user_id]["season"], datasource.user_info[user_id]["group"])
+            print("output_before", output)
+            # print("context relevance", context_rel)
+            # for key in output:
+            #    output[key] += 2 * context_rel[key]
+            # print("output_after", output)
+            user_recommendation.append(output)
+        TREC.create_output_file(user_recommendation, list(datasource.qrel_qid), "result.txt")
+        score = TREC.get_score("../../data/qrels_TREC2016_CS.txt", "result.txt")["all"]
+        print(score['ndcg_cut_5'], score['P_5'], score['P_10'], score["recip_rank"], score['ndcg'], score['map'],
+              score["bpref"], score["Rprec"])
+        whole_map['learning'] = [score['ndcg_cut_5'], score['P_5'], score['P_10'], score["recip_rank"], score['ndcg'],
+                          score['map'],
                           score["bpref"], score["Rprec"]]
+        # for par in datasource.params_list:
+        #     poi_ranker.fit(user_ids=datasource.qrel_qid, param_type="user_id", score_file="Given", store_profile=True, measure=par)
+        #     poi_ranker.fit(user_ids=datasource.qrel_qid, fit_type="learning", param_type="all", score_file="Given", store_profile=True, measure=par)
+        #     user_recommendation = []
+        #     for user_id in datasource.qrel_qid:
+        #         output = poi_ranker.getArticles(user_id)
+        #         #context_rel = context_relevence.getRelevance(season=datasource.user_info[user_id]["season"], group=datasource.user_info[user_id]["group"], user_id=user_id)
+        #         #print(datasource.user_info[user_id]["season"], datasource.user_info[user_id]["group"])
+        #         print("output_before", output)
+        #         #print("context relevance", context_rel)
+        #         #for key in output:
+        #         #    output[key] += 2 * context_rel[key]
+        #         #print("output_after", output)
+        #         user_recommendation.append(output)
+        #     TREC.create_output_file(user_recommendation, list(datasource.qrel_qid), "result.txt")
+        #     score = TREC.get_score("../../data/qrels_TREC2016_CS.txt", "result.txt")["all"]
+        #     print(par)
+        #     print(score['ndcg_cut_5'], score['P_5'], score['P_10'], score["recip_rank"], score['ndcg'], score['map'], score["bpref"], score["Rprec"])
+        #     whole_map[par] = [score['ndcg_cut_5'], score['P_5'], score['P_10'], score["recip_rank"], score['ndcg'], score['map'],
+        #                   score["bpref"], score["Rprec"]]
         print(whole_map)
         return whole_map
     
-    """
+
     """
     mp = datasource.find_all_param()
     fp1= open("test.json","w")
@@ -304,10 +327,11 @@ all_params['data_folder'] = "../../data/CorrectAllEmbWeightedRocchioMultiLevelSu
 all_params['request_file'] = "../../data/Phase2_requests.json"
 all_params['embedding'] = "../../data/embdding/embedding_correct_all_1000_iter.bin"
 all_params['profile'] = "weighted"
-all_params['ranking'] = "rocchio"
+#all_params['ranking'] = "rocchio"
+all_params['ranking'] = "lambdaMART"
 final_map["CorrectAllEmbWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
 #print(getContextData())
-"""
+
 grid_opt_param = {}
 grid_opt_param["param_min"] = [-4.0, -4.0]
 grid_opt_param["param_max"] = [8.0, 8.0]
@@ -317,7 +341,8 @@ all_params['data_folder'] = "../../data/Correct2016EmbWeightedRocchioMultiLevelS
 all_params['request_file'] = "../../data/Phase2_requests.json"
 all_params['embedding'] = "../../data/embdding/embedding_correct_2016_1000_iter.bin"
 all_params['profile'] = "weighted"
-all_params['ranking'] = "rocchio"
+#all_params['ranking'] = "rocchio"
+all_params['ranking'] = "lambdaMART"
 final_map["Correct2016EmbWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
 
 grid_opt_param = {}
@@ -329,7 +354,8 @@ all_params['data_folder'] = "../../data/CorrectAllEmbWeightedRocchioMultiLevelSu
 all_params['request_file'] = "../../data/Phase2_requests.json"
 all_params['embedding'] = "../../data/embdding/embedding_correct_all_500_iter.bin"
 all_params['profile'] = "weighted"
-all_params['ranking'] = "rocchio"
+#all_params['ranking'] = "rocchio"
+all_params['ranking'] = "lambdaMART"
 final_map["CorrectAllEmbWeightedRocchioMultiLevelSumTag500Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
 
 grid_opt_param = {}
@@ -341,7 +367,8 @@ all_params['data_folder'] = "../../data/Correct2016EmbWeightedRocchioMultiLevelS
 all_params['request_file'] = "../../data/Phase2_requests.json"
 all_params['embedding'] = "../../data/embdding/embedding_correct_2016_500_iter.bin"
 all_params['profile'] = "weighted"
-all_params['ranking'] = "rocchio"
+#all_params['ranking'] = "rocchio"
+all_params['ranking'] = "lambdaMART"
 final_map["Correct2016EmbWeightedRocchioMultiLevelSumTag500Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
 
 grid_opt_param = {}
@@ -353,7 +380,8 @@ all_params['data_folder'] = "../../data/Correct2016EmbUnWeightedRocchioMultiLeve
 all_params['request_file'] = "../../data/Phase2_requests.json"
 all_params['embedding'] = "../../data/embdding/embedding_correct_2016_1000_iter.bin"
 all_params['profile'] = "unweighted"
-all_params['ranking'] = "rocchio"
+#all_params['ranking'] = "rocchio"
+all_params['ranking'] = "lambdaMART"
 final_map["Correct2016EmbUnWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
 
 grid_opt_param = {}
@@ -365,7 +393,8 @@ all_params['data_folder'] = "../../data/CorrectAllEmbUnWeightedRocchioMultiLevel
 all_params['request_file'] = "../../data/Phase2_requests.json"
 all_params['embedding'] = "../../data/embdding/embedding_correct_all_1000_iter.bin"
 all_params['profile'] = "unweighted"
-all_params['ranking'] = "rocchio"
+#all_params['ranking'] = "rocchio"
+all_params['ranking'] = "lambdaMART"
 final_map["CorrectAllEmbUnWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
 
 grid_opt_param = {}
@@ -377,7 +406,8 @@ all_params['data_folder'] = "../../data/Correct2016EmbUnWeightedRocchioMultiLeve
 all_params['request_file'] = "../../data/Phase2_requests.json"
 all_params['embedding'] = "../../data/embdding/embedding_correct_2016_500_iter.bin"
 all_params['profile'] = "unweighted"
-all_params['ranking'] = "rocchio"
+#all_params['ranking'] = "rocchio"
+all_params['ranking'] = "lambdaMART"
 final_map["Correct2016EmbUnWeightedRocchioMultiLevelSumTag500Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
 
 grid_opt_param = {}
@@ -389,10 +419,10 @@ all_params['data_folder'] = "../../data/CorrectAllEmbUnWeightedRocchioMultiLevel
 all_params['request_file'] = "../../data/Phase2_requests.json"
 all_params['embedding'] = "../../data/embdding/embedding_correct_all_500_iter.bin"
 all_params['profile'] = "unweighted"
-all_params['ranking'] = "rocchio"
+#all_params['ranking'] = "rocchio"
+all_params['ranking'] = "lambdaMART"
 final_map["CorrectAllEmbUnWeightedRocchioMultiLevelSumTag500Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
 
 print(final_map)
-fp = open("all_unique_with_context_tag.json", "w")
+fp = open("learning_to_rank_user_id.json", "w")
 json.dump(final_map, fp)
-"""
