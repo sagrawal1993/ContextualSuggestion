@@ -317,43 +317,34 @@ def process(grid_opt_param, all_params, parm_file_generate=False):
 
 #print(len(qrelQid()))
 final_map = {}
-
+'''
 grid_opt_param = {}
 grid_opt_param["param_min"] = [-4.0, -4.0]
 grid_opt_param["param_max"] = [8.0, 8.0]
 grid_opt_param["step_size"] = 0.2
 all_params = {}
-all_params['data_folder'] = "../../data/AllEmbWeightedRocchioMultiLevelSumTag1000Iter"
+all_params['data_folder'] = "../../data/CorrectAllEmbWeightedRocchioMultiLevelSumTag1000Iter"
 all_params['request_file'] = "../../data/Phase2_requests.json"
-all_params['embedding'] = "../../data/embdding/embedding_all_1000_iter.bin"
+all_params['embedding'] = "../../data/embdding/embedding_correct_all_1000_iter.bin"
 all_params['profile'] = "weighted"
-<<<<<<< HEAD
-all_params['ranking'] = "rocchio"
-final_map["AllEmbWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
-=======
 #all_params['ranking'] = "rocchio"
 all_params['ranking'] = "lambdaMART"
 final_map["CorrectAllEmbWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
 #print(getContextData())
->>>>>>> 1656806d83a00e1d0f2571bab2ea426943bc3b04
-
+'''
 grid_opt_param = {}
 grid_opt_param["param_min"] = [-4.0, -4.0]
 grid_opt_param["param_max"] = [8.0, 8.0]
 grid_opt_param["step_size"] = 0.2
 all_params = {}
-all_params['data_folder'] = "../../data/2016EmbWeightedRocchioMultiLevelSumTag1000Iter"
+all_params['data_folder'] = "../../data/Correct2016EmbWeightedRocchioMultiLevelSumTag1000Iter"
 all_params['request_file'] = "../../data/Phase2_requests.json"
-all_params['embedding'] = "../../data/embdding/embedding_2016_1000_iter.bin"
+all_params['embedding'] = "../../data/embdding/embedding_correct_2016_1000_iter.bin"
 all_params['profile'] = "weighted"
-<<<<<<< HEAD
-all_params['ranking'] = "rocchio"
-final_map["2016EmbWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
-=======
 #all_params['ranking'] = "rocchio"
 all_params['ranking'] = "lambdaMART"
 final_map["Correct2016EmbWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
-
+'''
 grid_opt_param = {}
 grid_opt_param["param_min"] = [-4.0, -4.0]
 grid_opt_param["param_max"] = [8.0, 8.0]
@@ -379,44 +370,29 @@ all_params['profile'] = "weighted"
 #all_params['ranking'] = "rocchio"
 all_params['ranking'] = "lambdaMART"
 final_map["Correct2016EmbWeightedRocchioMultiLevelSumTag500Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
->>>>>>> 1656806d83a00e1d0f2571bab2ea426943bc3b04
 
 grid_opt_param = {}
 grid_opt_param["param_min"] = [-4.0, -8.0]
 grid_opt_param["param_max"] = [8.0, 4.0]
 grid_opt_param["step_size"] = 0.2
 all_params = {}
-all_params['data_folder'] = "../../data/2016EmbUnWeightedRocchioMultiLevelSumTag1000Iter"
+all_params['data_folder'] = "../../data/Correct2016EmbUnWeightedRocchioMultiLevelSumTag1000Iter"
 all_params['request_file'] = "../../data/Phase2_requests.json"
-all_params['embedding'] = "../../data/embdding/embedding_2016_1000_iter.bin"
+all_params['embedding'] = "../../data/embdding/embedding_correct_2016_1000_iter.bin"
 all_params['profile'] = "unweighted"
-<<<<<<< HEAD
-all_params['ranking'] = "rocchio"
-final_map["2016EmbUnWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
-=======
 #all_params['ranking'] = "rocchio"
 all_params['ranking'] = "lambdaMART"
 final_map["Correct2016EmbUnWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
->>>>>>> 1656806d83a00e1d0f2571bab2ea426943bc3b04
 
 grid_opt_param = {}
 grid_opt_param["param_min"] = [-4.0, -8.0]
 grid_opt_param["param_max"] = [8.0, 4.0]
 grid_opt_param["step_size"] = 0.2
 all_params = {}
-all_params['data_folder'] = "../../data/AllEmbUnWeightedRocchioMultiLevelSumTag1000Iter"
+all_params['data_folder'] = "../../data/CorrectAllEmbUnWeightedRocchioMultiLevelSumTag1000Iter"
 all_params['request_file'] = "../../data/Phase2_requests.json"
-all_params['embedding'] = "../../data/embdding/embedding_all_1000_iter.bin"
+all_params['embedding'] = "../../data/embdding/embedding_correct_all_1000_iter.bin"
 all_params['profile'] = "unweighted"
-<<<<<<< HEAD
-all_params['ranking'] = "rocchio"
-final_map["AllEmbUnWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
-
-
-
-print(final_map)
-fp = open("all_uniq_param_1000.json", "w")
-=======
 #all_params['ranking'] = "rocchio"
 all_params['ranking'] = "lambdaMART"
 final_map["CorrectAllEmbUnWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
@@ -449,5 +425,5 @@ final_map["CorrectAllEmbUnWeightedRocchioMultiLevelSumTag500Iter"] = process(gri
 
 print(final_map)
 fp = open("learning_to_rank_user_id.json", "w")
->>>>>>> 1656806d83a00e1d0f2571bab2ea426943bc3b04
 json.dump(final_map, fp)
+'''

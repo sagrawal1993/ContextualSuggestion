@@ -14,7 +14,7 @@ This method will simply rank the preferences for the given user.
 This module will contains method to recomment
 """
 
-from TextAnalysislib.InformationRetrival import AbstractIR
+from InformationRetrival import AbstractIR
 from analysislib import clustering, optimization
 from sklearn.metrics.pairwise import cosine_similarity
 from InformationRetrival.Measures import TREC

@@ -2,7 +2,7 @@
 This module will contains method to recomment
 """
 
-from TextAnalysislib.InformationRetrival import AbstractIR
+from InformationRetrival import AbstractIR
 from TextAnalysislib.TextEmbedding import embedding
 from analysislib import clustering
 from sklearn.metrics.pairwise import cosine_similarity
