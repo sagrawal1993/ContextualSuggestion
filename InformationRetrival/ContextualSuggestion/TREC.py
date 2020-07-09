@@ -278,9 +278,9 @@ def process(grid_opt_param, all_params, parm_file_generate=False):
                           score["bpref"], score["Rprec"]]
         '''
         #for par in datasource.params_list:
-        for par in ['ndcg_cut_5']:
-            #poi_ranker.fit(user_ids=datasource.qrel_qid, param_type="user_id", score_file="Given", store_profile=True, measure=par)
-            poi_ranker.fit(user_ids=datasource.qrel_qid, fit_type="search", param_type="all", score_file="Given", store_profile=True, measure=par)
+        for par in ['ndcg']:
+            poi_ranker.fit(user_ids=datasource.qrel_qid, param_type="user_id", score_file="Given", store_profile=True, measure=par)
+            #poi_ranker.fit(user_ids=datasource.qrel_qid, fit_type="search", param_type="all", score_file="Given", store_profile=True, measure=par)
             user_recommendation = []
             for user_id in datasource.qrel_qid:
                 output = poi_ranker.getArticles(user_id)
@@ -382,8 +382,8 @@ all_params['data_folder'] = "../../data/Correct2016EmbUnWeightedRocchioMultiLeve
 all_params['request_file'] = "../../data/Phase2_requests.json"
 all_params['embedding'] = "../../data/embdding/embedding_correct_2016_1000_iter.bin"
 all_params['profile'] = "unweighted"
-#all_params['ranking'] = "rocchio"
-all_params['ranking'] = "lambdaMART"
+all_params['ranking'] = "rocchio"
+#all_params['ranking'] = "lambdaMART"
 final_map["Correct2016EmbUnWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
 
 grid_opt_param = {}
@@ -395,9 +395,10 @@ all_params['data_folder'] = "../../data/CorrectAllEmbUnWeightedRocchioMultiLevel
 all_params['request_file'] = "../../data/Phase2_requests.json"
 all_params['embedding'] = "../../data/embdding/embedding_correct_all_1000_iter.bin"
 all_params['profile'] = "unweighted"
-#all_params['ranking'] = "rocchio"
-all_params['ranking'] = "lambdaMART"
+all_params['ranking'] = "rocchio"
+#all_params['ranking'] = "lambdaMART"
 final_map["CorrectAllEmbUnWeightedRocchioMultiLevelSumTag1000Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
+
 
 grid_opt_param = {}
 grid_opt_param["param_min"] = [-4.0, -8.0]
@@ -408,9 +409,10 @@ all_params['data_folder'] = "../../data/Correct2016EmbUnWeightedRocchioMultiLeve
 all_params['request_file'] = "../../data/Phase2_requests.json"
 all_params['embedding'] = "../../data/embdding/embedding_correct_2016_500_iter.bin"
 all_params['profile'] = "unweighted"
-#all_params['ranking'] = "rocchio"
-all_params['ranking'] = "lambdaMART"
+all_params['ranking'] = "rocchio"
+#all_params['ranking'] = "lambdaMART"
 final_map["Correct2016EmbUnWeightedRocchioMultiLevelSumTag500Iter"] = process(grid_opt_param, all_params, parm_file_generate=False)
+
 
 grid_opt_param = {}
 grid_opt_param["param_min"] = [-4.0, -8.0]
