@@ -419,7 +419,7 @@ class SeasonTripTypeRelevance:
         self.tag_embedding = tag_embedding
         self.features = ['winter', 'summer', 'autumn', 'spring', 'friends', 'family', 'alone', 'others']
 
-    def fit(self, context_list, cross_val=False):
+    def fit(self, context_list, cross_val=False, n=5):
         X = []
         Y = []
         for context in context_list:
@@ -451,11 +451,11 @@ class SeasonTripTypeRelevance:
                         x = list(feature_map.values()) + list(emb)
                         X.append(x)
                 else:
-                    print("fitting the poi")
+                    #print("fitting the poi")
                     emb = self.tag_embedding.get_doc_embedding(tags)
                     if emb is None:
                         continue
-                    print(rating)
+                    #print(rating)
                     if rating > 2:
                         Y.append(1)
                     else:
@@ -465,10 +465,11 @@ class SeasonTripTypeRelevance:
 
         print("Training point", len(X), len(Y))
         print("sum", sum(Y))
-        self.clf = KNeighborsClassifier(n_neighbors=5)
+        self.clf = KNeighborsClassifier(n_neighbors=n)
         if cross_val:
-            scores = cross_val_score(self.clf, X, Y, cv=2)
+            scores = cross_val_score(self.clf, X, Y, cv=10)
             print(scores)
+            return sum(scores)/10
         else:
             self.clf.fit(X, Y)
 
