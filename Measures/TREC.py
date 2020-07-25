@@ -1,6 +1,8 @@
-import numpy as np
 import subprocess
 import os
+
+#from ContextualSuggestion import TREC
+
 
 def create_qrel_from_preferences(pref_list, user_id_list, qrel_file, level="multi"):
     #print("Create Qrel from Preferences")
@@ -95,9 +97,8 @@ def get_score(qrel_file, output_file):
     @arg3: query id for which result required./ "all" if avg score is required.
 
     """
-    from InformationRetrival.Measures import TREC
     import os
-    path = os.path.dirname(TREC.__file__)
+    #path = os.path.dirname(TREC.__file__)
     result = subprocess.check_output(['./../Measures/trec_eval/trec_eval', '-m', 'all_trec', '-q', qrel_file, output_file])
     query_score_map = {}
     result = result.decode()

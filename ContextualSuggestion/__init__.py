@@ -2,8 +2,7 @@
 This module will contains method to recomment
 """
 
-from InformationRetrival import AbstractIR
-from TextAnalysislib.TextEmbedding import embedding
+#from InformationRetrival import AbstractIR
 from analysislib import clustering
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -53,7 +52,7 @@ class AbstractDataSource:
         """
         pass
 
-class WordEmbeddingBased(AbstractIR):
+class WordEmbeddingBased():
 
     """
     query:: {"id":1, "body":

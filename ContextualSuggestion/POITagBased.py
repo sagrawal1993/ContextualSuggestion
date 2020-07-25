@@ -14,10 +14,9 @@ This method will simply rank the preferences for the given user.
 This module will contains method to recomment
 """
 
-from InformationRetrival import AbstractIR
 from analysislib import clustering, optimization
 from sklearn.metrics.pairwise import cosine_similarity
-from InformationRetrival.Measures import TREC
+from Measures import TREC
 from analysislib import ranking
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score
@@ -91,7 +90,7 @@ class AbstractDataSource:
         """
         pass
 
-class WordEmbeddingBased(AbstractIR):
+class WordEmbeddingBased():
 
     """
     query:: {"id":1, "body":
@@ -117,7 +116,8 @@ class WordEmbeddingBased(AbstractIR):
     This code expect preferences to have tags.
     """
     def __init__(self, datasource, tag_embedding, profile_vector="unweighted", profile_type="individual", ranking="rocchio", rating_shift=2, opt_name=None, opt_param=None, qrel_level="multi", poi_relevance=False):
-        super().__init__(datasource)
+        #super().__init__(datasource)
+        self.datasource = datasource
         self.tag_embedding = tag_embedding
         self.profile_vector = profile_vector
         self.rating_shift = rating_shift

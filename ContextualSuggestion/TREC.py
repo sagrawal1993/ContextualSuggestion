@@ -1,9 +1,8 @@
 import json
 import os
-import re
-from InformationRetrival.ContextualSuggestion.POITagBased import WordEmbeddingBased, SeasonTripTypeRelevance
+from ContextualSuggestion.POITagBased import WordEmbeddingBased, SeasonTripTypeRelevance
 from TextAnalysislib import TextEmbedding
-from InformationRetrival.Measures import TREC
+from Measures import TREC
 import unidecode
 
 class TRECDataSource:
@@ -172,7 +171,7 @@ def create_word_embedding(sentence_list=None, model_file="embedding.bin"):
 
 def qrelQid():
     qid_list = []
-    lines = open("../../data/qrels_TREC2016_CS.txt").read().strip().split("\n")
+    lines = open("../data/qrels_TREC2016_CS.txt").read().strip().split("\n")
     for line in lines:
         qid = line.split("\t")[0]
         #if "opt_" + qid + ".json" not in os.listdir("/Users/surajagrawal/suraj/MyProjects/informatinoretrival/data/2016EmbWeightedRocchioMultiLevelSumTag"):
@@ -182,7 +181,7 @@ def qrelQid():
 
 
 def getContextData():
-    queries = open("../../data/batch_requests.json").read().strip().split("\n")
+    queries = open("../data/batch_requests.json").read().strip().split("\n")
     data_point_list = []
     for query in queries:
         data_point = {}
@@ -206,7 +205,7 @@ def getTagData(consider_tag=["2015", "2016_phase1", "2016_phase2"]):
     sentence_list = []
     if "2015" in consider_tag:
         print("adding 2015 tags")
-        requests = open("../../data/batch_requests.json").read().strip().split("\n")
+        requests = open("../data/batch_requests.json").read().strip().split("\n")
         for request in requests:
             req_json = json.loads(request)
             candidates = req_json["body"]["person"]["preferences"]
@@ -215,7 +214,7 @@ def getTagData(consider_tag=["2015", "2016_phase1", "2016_phase2"]):
                     sentence_list.append(candidate["tags"])
     if "2016_phase1" in consider_tag:
         print("adding 2016 phase1 tags")
-        requests = open("../../data/Phase1_requests.json").read().strip().split("\n")
+        requests = open("../data/Phase1_requests.json").read().strip().split("\n")
         for request in requests:
             req_json = json.loads(request)
             candidates = req_json["body"]["person"]["preferences"]
@@ -225,7 +224,7 @@ def getTagData(consider_tag=["2015", "2016_phase1", "2016_phase2"]):
 
     if "2016_phase2" in consider_tag:
         print("adding 2016 phase2 tags")
-        requests = open("../../data/Phase2_requests.json").read().strip().split("\n")
+        requests = open("../data/Phase2_requests.json").read().strip().split("\n")
         for request in requests:
             req_json = json.loads(request)
             candidates = req_json["candidates"] + req_json["body"]["person"]["preferences"]
@@ -294,7 +293,7 @@ def process(grid_opt_param, all_params, parm_file_generate=False):
                 #print("output_after", output)
                 user_recommendation.append(output)
             TREC.create_output_file(user_recommendation, list(datasource.qrel_qid), "result.txt")
-            score = TREC.get_score("../../data/qrels_TREC2016_CS.txt", "result.txt")["all"]
+            score = TREC.get_score("../data/qrels_TREC2016_CS.txt", "result.txt")["all"]
             print(par)
             print(score['ndcg_cut_5'], score['P_5'], score['P_10'], score["recip_rank"], score['ndcg'], score['map'], score["bpref"], score["Rprec"])
             whole_map[par] = [score['ndcg_cut_5'], score['P_5'], score['P_10'], score["recip_rank"], score['ndcg'], score['map'],
@@ -351,9 +350,9 @@ grid_opt_param["param_min"] = [-4.0, -4.0]
 grid_opt_param["param_max"] = [8.0, 8.0]
 grid_opt_param["step_size"] = 0.2
 all_params = {}
-all_params['data_folder'] = "../../data/CorrectAllEmbWeightedRocchioMultiLevelSumTag1000Iter"
-all_params['request_file'] = "../../data/Phase2_requests.json"
-all_params['embedding'] = "../../data/embdding/embedding_correct_all_1000_iter.bin"
+all_params['data_folder'] = "../data/CorrectAllEmbWeightedRocchioMultiLevelSumTag1000Iter"
+all_params['request_file'] = "../data/Phase2_requests.json"
+all_params['embedding'] = "../data/embdding/embedding_correct_all_1000_iter.bin"
 all_params['profile'] = "weighted"
 all_params['ranking'] = "rocchio"
 all_params['k_value'] = get_key_val(context_k_map["CorrectAllEmbWeightedRocchioMultiLevelSumTag1000Iter"])

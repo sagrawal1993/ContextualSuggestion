@@ -1,13 +1,13 @@
 from distutils.core import setup
 setup(
-    name = "InformationRetrival",
-    packages = ["InformationRetrival", "InformationRetrival.ContextualSuggestion", "InformationRetrival.Measures", "InformationRetrival.Measures.trec_eval"],
+    name = "ContextualSuggestion",
+    packages = ["ContextualSuggestion", "Measures", "Measures.trec_eval"],
     version = "0.0.2",
     description = "General function required for personal uses.",
     author = "Suraj Agrawal",
     author_email = "s.agrawal1993@gmail.com",
-    package_data={"InformationRetrival.Measures.trec_eval": ['*']},
-    url = "http://weekendtrip.co.in/",
+    package_data={"Measures.trec_eval": ['*']},
+    url = "",
     download_url = "",
     keywords = ["encoding", "i18n", "xml"],
     classifiers = [

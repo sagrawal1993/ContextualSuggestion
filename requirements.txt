@@ -1,0 +1,5 @@
+Unidecode~=1.1.1
+TextAnalysislib~=0.0.2
+InformationRetrival~=0.0.2
+analysislib~=0.0.2
+scikit-learn~=0.23.1
