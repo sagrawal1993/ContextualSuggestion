@@ -11,7 +11,14 @@ This method will simply rank the preferences for the given user.
 """
 
 """
-This module will contains method to recomment
+This module will contains method to recommend. 
+
+
+* These file uses some libraries, generated for personal uses, We didn't add it to repository to make it simpler. 
+Please let us know, if you require them. 
+
+
+
 """
 
 from analysislib import clustering, optimization
