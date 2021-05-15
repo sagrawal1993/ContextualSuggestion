@@ -1,6 +1,6 @@
 TREC Contextual Suggestion : https://sites.google.com/site/treccontext/
 
-Sample Request Query for the task: 
+Sample request query for the task: 
 ```json
 
 {
