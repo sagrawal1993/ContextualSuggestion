@@ -1,7 +1,7 @@
 TREC Contextual Suggestion : https://sites.google.com/site/treccontext/
 
 Sample Request Query for the task: 
-
+```json
 
 {
   "id": 1,
@@ -481,3 +481,4 @@ Sample Request Query for the task:
     }
   ]
 }
+```
