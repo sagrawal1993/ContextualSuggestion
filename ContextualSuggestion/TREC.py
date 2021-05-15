@@ -1,3 +1,10 @@
+'''
+These file uses some libraries, generated for personal uses, We didn't add it to repository to make it simpler. 
+Please let us know, if you require them. 
+
+'''
+
+
 import json
 import os
 from ContextualSuggestion.POITagBased import WordEmbeddingBased, SeasonTripTypeRelevance
