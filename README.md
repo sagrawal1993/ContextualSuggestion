@@ -1,8 +1,8 @@
-TREC Contextual Suggestion : https://sites.google.com/site/treccontext/
+**TREC Contextual Suggestion** : https://sites.google.com/site/treccontext/
 
-Significant test file: t-test.sh 
+**Significant test file**: t-test.sh 
 
-Sample request query for the task: 
+**Sample request query for the task**: 
 ```json
 
 {
