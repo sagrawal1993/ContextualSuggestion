@@ -1,9 +1,24 @@
 **TREC Contextual Suggestion** : https://sites.google.com/site/treccontext/
 
-**Significant test file**: [t-test.sh](https://github.com/sagrawal1993/ContextualSuggestion/blob/master/t-test.sh) 
+**File Description :**
 
-**Combined tag list from 2015 and 2016 TREC CS Dataset**: [tag_list.txt](https://github.com/sagrawal1993/ContextualSuggestion/blob/master/tags_list.txt)
+*Significant test file*: [t-test.sh](https://github.com/sagrawal1993/ContextualSuggestion/blob/master/t-test.sh) 
 
+*Combined tag list from 2015 and 2016 TREC CS Dataset*: [tag_list.txt](https://github.com/sagrawal1993/ContextualSuggestion/blob/master/tags_list.txt)
+
+*Combined tag list from 2015 and 2016 TREC CS Dataset after preprocessing*: [preprocessed_tags.txt](https://github.com/sagrawal1993/ContextualSuggestion/blob/master/preprocessed_tags.txt)
+
+*Dataset used to train tag embedding*: [word_embedding_training_data.txt](https://github.com/sagrawal1993/ContextualSuggestion/blob/master/word_embedding_training_data.txt)
+
+**Folder Descrption :**
+
+*Analysis_detail_file*: It contains detailed result of analysis presented in the draft. 
+
+*Result_eval_file*: It contains all the TREC Eval file corresponds to our experiments. 
+
+*ContextualSuggestion*: Source code to implement our method described into draft. 
+
+*Measures*: Source code to use trec_eval script output inside the python program, to get the evaluation measure for ***profile***
 
 
 **Sample request query for the task**: 
