@@ -5,4 +5,4 @@
 
 *Example*: UnUPSameAll.out_p_5 == {*UnUPSame*}{*All*}.out_{*p_5*}
 
-***These result are reported in the Table 4 & 5 of the paper. ***
+***These result are reported in the Table 4 & 5 of the paper***
