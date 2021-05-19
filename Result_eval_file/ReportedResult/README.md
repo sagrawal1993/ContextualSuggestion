@@ -1,4 +1,4 @@
-##### These are eval file generated from our experiment.
+### These are eval file generated from our experiment.
 
 
 **File format**: {*Method Name*}{*All/2016(Depending on the tag embedding dataset used)*}.out_{*optimization parameter(ex: ndcg/map_cut_20)*}
