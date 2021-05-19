@@ -1,4 +1,4 @@
-***<u>File Details</u>***
+***File Details***
 
 
 **one_hot_encode_detailed_result**:
