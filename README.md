@@ -6,8 +6,10 @@
 ```json
 
 {
-  "id": 1,
+  "id": 1,  
+  
   "body": {
+  
     "group": "Family",
     "season": "Summer",
     "trip_type": "Holiday",
@@ -19,10 +21,12 @@
       "lat": 41.85003,
       "lng": -87.65005
     },
+    
     "person": {
       "gender": "Male",
       "age": 23,
       "id": "A00126103VB6TFM3EITH9",
+      
       "preferences": [
         {
           "rating": 3,
@@ -30,18 +34,6 @@
           "tags": [
             "History",
             "Museums"
-          ]
-        },
-        {
-          "rating": 3,
-          "documentId": "TRECCS-00018097-160",
-          "tags": [
-            "Outdoor Activities",
-            "Art",
-            "Food",
-            "Live Music",
-            "Markets",
-            "Farmer's markets"
           ]
         },
         {
@@ -95,27 +87,6 @@
           ]
         },
         {
-          "rating": 3,
-          "documentId": "TRECCS-00675013-160",
-          "tags": [
-            "Beer",
-            "Fine Dining",
-            "Cocktails",
-            "Restaurants"
-          ]
-        },
-        {
-          "rating": 3,
-          "documentId": "TRECCS-00086310-160",
-          "tags": [
-            "Beer",
-            "Cocktails",
-            "Food",
-            "Entertainment",
-            "Sport"
-          ]
-        },
-        {
           "rating": 4,
           "documentId": "TRECCS-00087258-160",
           "tags": [
@@ -130,11 +101,9 @@
       ]
     }
   },
+  
+  
   "candidates": [
-    {
-      "documentId": "TRECCS-00062232-152",
-      "tags": []
-    },
     {
       "documentId": "TRECCS-00405100-152",
       "tags": [
@@ -142,10 +111,6 @@
         "Bar-hopping",
         "Restaurants"
       ]
-    },
-    {
-      "documentId": "TRECCS-00061983-152",
-      "tags": []
     },
     {
       "documentId": "TRECCS-00066766-152",
@@ -190,19 +155,11 @@
       ]
     },
     {
-      "documentId": "TRECCS-00010496-152",
-      "tags": []
-    },
-    {
       "documentId": "TRECCS-00062723-152",
       "tags": [
         "Family Friendly",
         "Restaurants"
       ]
-    },
-    {
-      "documentId": "TRECCS-00405596-152",
-      "tags": []
     },
     {
       "documentId": "TRECCS-00405075-152",
@@ -246,13 +203,6 @@
       ]
     },
     {
-      "documentId": "TRECCS-00010469-152",
-      "tags": [
-        "Restaurants",
-        "Food"
-      ]
-    },
-    {
       "documentId": "TRECCS-00061864-152",
       "tags": [
         "Beer",
@@ -273,16 +223,6 @@
       ]
     },
     {
-      "documentId": "TRECCS-00062118-152",
-      "tags": []
-    },
-    {
-      "documentId": "TRECCS-00010479-152",
-      "tags": [
-        "Restaurants"
-      ]
-    },
-    {
       "documentId": "TRECCS-00010463-152",
       "tags": [
         "Tourism",
@@ -295,19 +235,9 @@
       ]
     },
     {
-      "documentId": "TRECCS-00405977-152",
-      "tags": []
-    },
-    {
       "documentId": "TRECCS-00259823-152",
       "tags": [
         "Cocktails",
-        "Restaurants"
-      ]
-    },
-    {
-      "documentId": "TRECCS-00010521-152",
-      "tags": [
         "Restaurants"
       ]
     },
@@ -336,16 +266,6 @@
       "documentId": "TRECCS-00405327-152",
       "tags": [
         "Shopping"
-      ]
-    },
-    {
-      "documentId": "TRECCS-00405340-152",
-      "tags": [
-        "Tourism",
-        "Culture",
-        "Family Friendly",
-        "History",
-        "Museums"
       ]
     },
     {
@@ -386,20 +306,6 @@
       ]
     },
     {
-      "documentId": "TRECCS-00405237-152",
-      "tags": []
-    },
-    {
-      "documentId": "TRECCS-00405401-152",
-      "tags": [
-        "Tourism",
-        "Outdoor Activities",
-        "Family Friendly",
-        "Parks",
-        "Live Music"
-      ]
-    },
-    {
       "documentId": "TRECCS-00010486-152",
       "tags": [
         "Bar-hopping",
@@ -408,30 +314,10 @@
       ]
     },
     {
-      "documentId": "TRECCS-00259825-152",
-      "tags": [
-        "Bar-hopping",
-        "Restaurants"
-      ]
-    },
-    {
       "documentId": "TRECCS-00620569-152",
       "tags": [
         "Family Friendly",
         "Restaurants"
-      ]
-    },
-    {
-      "documentId": "TRECCS-00620721-152",
-      "tags": [
-        "Family Friendly",
-        "Restaurants"
-      ]
-    },
-    {
-      "documentId": "TRECCS-00064811-152",
-      "tags": [
-        "Beer"
       ]
     },
     {
@@ -447,30 +333,6 @@
       "tags": [
         "Family Friendly",
         "Restaurants"
-      ]
-    },
-    {
-      "documentId": "TRECCS-00010481-152",
-      "tags": []
-    },
-    {
-      "documentId": "TRECCS-00066276-152",
-      "tags": []
-    },
-    {
-      "documentId": "TRECCS-00010492-152",
-      "tags": []
-    },
-    {
-      "documentId": "TRECCS-00065271-152",
-      "tags": [
-        "Tourism",
-        "Culture",
-        "Art",
-        "History",
-        "Family Friendly",
-        "Restaurants",
-        "Museums"
       ]
     },
     {
