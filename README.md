@@ -1,6 +1,10 @@
 **TREC Contextual Suggestion** : https://sites.google.com/site/treccontext/
 
-**Significant test file**: t-test.sh 
+**Significant test file**: [t-test.sh](https://github.com/sagrawal1993/ContextualSuggestion/blob/master/t-test.sh) 
+
+**Combined tag list from 2015 and 2016 TREC CS Dataset**: [tag_list.txt](https://github.com/sagrawal1993/ContextualSuggestion/blob/master/tags_list.txt)
+
+
 
 **Sample request query for the task**: 
 ```json
