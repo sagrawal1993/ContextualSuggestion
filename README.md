@@ -12,13 +12,13 @@
 
 **Folder Descrption :**
 
-*Analysis_detail_file*: It contains detailed result of analysis presented in the draft. 
+*[Analysis_detail_file](https://github.com/sagrawal1993/ContextualSuggestion/tree/master/Analysis_detail_file)*: It contains detailed result of analysis presented in the draft. 
 
-*Result_eval_file*: It contains all the TREC Eval file corresponds to our experiments. 
+*[Result_eval_file](https://github.com/sagrawal1993/ContextualSuggestion/tree/master/Result_eval_file)*: It contains all the TREC Eval file corresponds to our experiments. 
 
-*ContextualSuggestion*: Source code to implement our method described into draft. 
+*[ContextualSuggestion](https://github.com/sagrawal1993/ContextualSuggestion/tree/master/ContextualSuggestion)*: Source code to implement our method described into draft. 
 
-*Measures*: Source code to use trec_eval script output inside the python program, to get the evaluation measure for ***profile***
+*[Measures](https://github.com/sagrawal1993/ContextualSuggestion/tree/master/Measures)*: Source code to use trec_eval script output inside the python program, to get the evaluation measure for ***profile***
 
 
 **Sample request query for the task**: 
